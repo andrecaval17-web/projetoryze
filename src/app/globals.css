@@ -1,0 +1,337 @@
+@import "tailwindcss";
+
+/*
+  Ryze design tokens.
+
+  Raw semantic values live as plain CSS custom properties on :root / .dark
+  (unprefixed, e.g. --bg, --fg, --neutral-500). The `@theme inline` block
+  below re-points Tailwind's `--color-*` theme keys at those raw variables
+  *by reference* rather than inlining a literal value, which is what lets
+  `bg-bg`, `text-fg`, etc. actually flip when the `.dark` class toggles.
+*/
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Brand — fixed, does not change between light/dark */
+  --ink: #2e2c2a;
+  --ink-muted: #6b6864;
+  --paper: #f3f0ea;
+  --paper-dark: #17140f;
+
+  --accent-400: #ff8a4c;
+  --accent-500: #e85c2a;
+  --accent-600: #a83e1d;
+
+  /* Form validation — a warm red-orange, kept in the same family as accent */
+  --error: #c4432b;
+  --gradient-ryze: linear-gradient(
+    135deg,
+    var(--accent-400) 0%,
+    var(--accent-500) 55%,
+    var(--accent-600) 100%
+  );
+
+  /* Warm neutral ramp — light mode (50 near paper -> 900 near ink) */
+  --neutral-50: #f3f0ea;
+  --neutral-100: #ebe7df;
+  --neutral-200: #ddd7cc;
+  --neutral-300: #c9c1b3;
+  --neutral-400: #ada396;
+  --neutral-500: #8f8577;
+  --neutral-600: #736a5e;
+  --neutral-700: #5a5248;
+  --neutral-800: #443e36;
+  --neutral-900: #2e2c2a;
+
+  /* Semantic surfaces — light */
+  --bg: var(--paper);
+  --bg-surface: var(--neutral-100);
+  --bg-surface-2: var(--neutral-200);
+  --fg: var(--ink);
+  --fg-muted: var(--ink-muted);
+  --border: var(--neutral-300);
+  --border-strong: var(--neutral-400);
+  --shadow-color: 39 26% 12%;
+
+  /* Motion */
+  --ease-ryze: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+  --duration-slow: 320ms;
+}
+
+.dark {
+  /* Warm neutral ramp — dark mode (950 near paper-dark -> 50 near paper) */
+  --neutral-950: #17140f;
+  --neutral-900: #211d17;
+  --neutral-800: #2c2720;
+  --neutral-700: #3a342b;
+  --neutral-600: #4c4438;
+  --neutral-500: #665c4c;
+  --neutral-400: #857a66;
+  --neutral-300: #a89c86;
+  --neutral-200: #cbc0aa;
+  --neutral-100: #e6ddcb;
+  --neutral-50: #f3f0ea;
+
+  /* Semantic surfaces — dark */
+  --bg: var(--paper-dark);
+  --bg-surface: var(--neutral-900);
+  --bg-surface-2: var(--neutral-800);
+  --fg: var(--neutral-50);
+  --fg-muted: var(--neutral-300);
+  --border: var(--neutral-700);
+  --border-strong: var(--neutral-600);
+  --shadow-color: 0 0% 0%;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-paper: var(--paper);
+  --color-paper-dark: var(--paper-dark);
+
+  --color-accent-400: var(--accent-400);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-error: var(--error);
+
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-900: var(--neutral-900);
+
+  --color-bg: var(--bg);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-surface-2: var(--bg-surface-2);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --font-display: var(--font-space-grotesk);
+  --font-body: var(--font-inter);
+
+  /* Type scale */
+  --text-display-2xl: clamp(2.75rem, 2rem + 3vw, 4.5rem);
+  --text-display-2xl--line-height: 1.04;
+  --text-display-2xl--letter-spacing: -0.02em;
+  --text-display-xl: clamp(2.25rem, 1.7rem + 2.2vw, 3.5rem);
+  --text-display-xl--line-height: 1.06;
+  --text-display-xl--letter-spacing: -0.02em;
+  --text-display-lg: clamp(1.875rem, 1.5rem + 1.5vw, 2.75rem);
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: -0.015em;
+  --text-display-md: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+  --text-display-md--line-height: 1.15;
+  --text-display-md--letter-spacing: -0.01em;
+
+  --text-heading-lg: 1.5rem;
+  --text-heading-lg--line-height: 1.25;
+  --text-heading-md: 1.25rem;
+  --text-heading-md--line-height: 1.3;
+  --text-heading-sm: 1.0625rem;
+  --text-heading-sm--line-height: 1.35;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.6;
+  --text-body-md: 1rem;
+  --text-body-md--line-height: 1.6;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.55;
+
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.3;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+
+  /* Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+
+  /* Shadows — tinted with the warm ink hue instead of neutral gray, and
+     pushed darker than a typical SaaS-pastel palette so surfaces actually
+     separate from the paper background instead of blending into it. */
+  --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.09),
+    0 1px 1px hsl(var(--shadow-color) / 0.06);
+  --shadow-md: 0 10px 28px -8px hsl(var(--shadow-color) / 0.24),
+    0 3px 8px -2px hsl(var(--shadow-color) / 0.14);
+  --shadow-lg: 0 28px 56px -12px hsl(var(--shadow-color) / 0.32),
+    0 10px 20px -8px hsl(var(--shadow-color) / 0.18);
+
+  /* Accent-tinted glow — reserved for the elements that should read as
+     "powered by AI": primary CTAs, the recommended plan, AI product cards. */
+  --shadow-glow-sm: 0 4px 18px -4px rgb(232 92 42 / 0.38);
+  --shadow-glow-md: 0 14px 40px -8px rgb(232 92 42 / 0.45),
+    0 4px 14px -4px rgb(232 92 42 / 0.3);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    transition: background-color var(--duration-base) var(--ease-ryze),
+      color var(--duration-base) var(--ease-ryze);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: var(--accent-400);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-ryze {
+    background-image: var(--gradient-ryze);
+  }
+
+  .text-gradient-ryze {
+    background-image: var(--gradient-ryze);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .transition-ryze {
+    transition-timing-function: var(--ease-ryze);
+    transition-duration: var(--duration-base);
+  }
+
+  .shadow-glow-sm {
+    box-shadow: var(--shadow-glow-sm);
+  }
+
+  .shadow-glow-md {
+    box-shadow: var(--shadow-glow-md);
+  }
+
+  /* Slow-drifting accent mesh — the "AI energy" backdrop for hero-scale
+     sections. Reserved for moments that should feel alive, not tiled
+     everywhere. Animation is neutralized by the reduced-motion rule below. */
+  .bg-mesh-ryze {
+    background-color: var(--bg);
+    background-image: radial-gradient(
+        circle at 15% 20%,
+        rgb(255 138 76 / 0.35),
+        transparent 45%
+      ),
+      radial-gradient(circle at 85% 15%, rgb(168 62 29 / 0.3), transparent 50%),
+      radial-gradient(circle at 50% 95%, rgb(232 92 42 / 0.28), transparent 55%);
+    background-size: 180% 180%;
+    animation: mesh-drift 18s var(--ease-ryze) infinite alternate;
+  }
+}
+
+@keyframes mesh-drift {
+  0% {
+    background-position: 0% 0%, 100% 0%, 50% 100%;
+  }
+  100% {
+    background-position: 20% 15%, 80% 20%, 60% 85%;
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: fold-float 5s var(--ease-ryze) infinite;
+  }
+}
+
+@keyframes fold-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes fold-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.7;
+  }
+}
+
+/* Neural hero: light travelling along synapses (edges) */
+@keyframes synapse-flow {
+  from {
+    stroke-dashoffset: 32;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Neural hero: a node "firing" — glow blooms then fades on a loop */
+@keyframes node-fire {
+  0%,
+  100% {
+    transform: scale(0.4);
+    opacity: 0.12;
+  }
+  45% {
+    transform: scale(1.3);
+    opacity: 0.5;
+  }
+}
+
+@keyframes scan-line {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
