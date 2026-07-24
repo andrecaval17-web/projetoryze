@@ -27,7 +27,7 @@ export async function submitLead(
   }
 
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = await getSupabaseServerClient();
     const { error } = await supabase.from("leads").insert({
       type,
       name,

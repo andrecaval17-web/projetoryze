@@ -136,6 +136,23 @@ export default function ParaCandidatosPage() {
               <Link href="#planos">Ver planos</Link>
             </Button>
           </div>
+
+          {/* Atalho direto — já sabe qual plano quer? Vai reto pro cadastro
+              com o plano pré-selecionado, sem rolar a página até §4. */}
+          <p className="mt-6 text-body-sm text-fg-muted">
+            Já sabe o que quer?{" "}
+            {candidatePlans.map((plan, i) => (
+              <span key={plan.slug}>
+                <Link
+                  href={`/cadastro?plano=${plan.slug}`}
+                  className="font-medium text-accent-600 underline underline-offset-2 dark:text-accent-400"
+                >
+                  {plan.name}
+                </Link>
+                {i < candidatePlans.length - 1 ? " · " : ""}
+              </span>
+            ))}
+          </p>
         </div>
       </section>
 

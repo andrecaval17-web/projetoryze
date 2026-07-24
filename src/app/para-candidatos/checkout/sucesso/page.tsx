@@ -64,7 +64,7 @@ export default async function CheckoutSucessoPage({
       )}
 
       <Button asChild size="lg" className="mt-8">
-        <Link href="/">Voltar para a Home</Link>
+        <Link href="/para-candidatos/painel">Ir para sua área</Link>
       </Button>
     </div>
   );

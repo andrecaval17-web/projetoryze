@@ -1,0 +1,186 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { FileText, MessageSquare, Lock, CalendarCheck, TrendingUp } from "lucide-react";
+import { getSupabaseServerClient, getCurrentUserPlan, getCurrentSubscription } from "@/lib/supabase/server";
+import { normalizeResumeData } from "@/lib/resume-schema";
+import { Badge } from "@/components/ui/badge";
+import { LinkedinIcon } from "@/components/ui/social-icons";
+import { GuidedJourney } from "@/components/painel/guided-journey";
+import { FreePlanNudge } from "@/components/painel/free-plan-nudge";
+import { getOnboardingJourney, pickCurrentJobApplication } from "@/lib/guided-flow";
+import { cn } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Sua área — Ryze",
+  robots: { index: false, follow: false },
+};
+
+const tools = [
+  {
+    icon: FileText,
+    title: "Currículo com IA",
+    description: "Monte um currículo estruturado e baixe em PDF.",
+    href: "/para-candidatos/painel/curriculo",
+    // Recurso do plano Grátis também — os demais exigem plano pago.
+    minPlan: "gratis" as const,
+  },
+  {
+    icon: LinkedinIcon,
+    title: "Análise de LinkedIn",
+    description: "Envie o PDF do seu perfil e receba sugestões de melhoria.",
+    href: "/para-candidatos/painel/linkedin",
+    minPlan: "impulso" as const,
+  },
+  {
+    icon: MessageSquare,
+    title: "Simulação de entrevista",
+    description: "Treine por voz com uma IA entrevistadora.",
+    href: "/para-candidatos/painel/entrevista",
+    minPlan: "impulso" as const,
+  },
+  {
+    icon: CalendarCheck,
+    title: "Sessão de Mentoria",
+    description: "Agende sua sessão mensal de 30 minutos com um consultor.",
+    href: "/para-candidatos/painel/mentoria",
+    minPlan: "mentoria" as const,
+  },
+  {
+    icon: TrendingUp,
+    title: "Painel de evolução",
+    description: "Acompanhe sua pontuação no LinkedIn e o que você já produziu.",
+    href: "/para-candidatos/painel/evolucao",
+    // Recurso Impulso+ — a própria página mostra o mesmo paywall das outras
+    // ferramentas pagas pra quem tenta acessar direto pela URL (achado da
+    // auditoria de UX de 2026-07-23; antes o card ficava aberto pro Grátis
+    // e só o conteúdo interno vinha travado).
+    minPlan: "impulso" as const,
+  },
+];
+
+const planLabel: Record<string, string> = {
+  gratis: "Grátis",
+  impulso: "Impulso",
+  mentoria: "Mentoria",
+};
+
+export default async function PainelPage() {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/cadastro?plano=gratis");
+  }
+
+  const { data: profile } = await supabase
+    .from("candidate_profiles")
+    .select("profile_data, full_name")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  // O painel depende do perfil base do candidato (usado pela IA depois) —
+  // sem isso, manda primeiro para o formulário que o coleta (o único
+  // formulário de entrada agora é o "Preencher perfil" em /painel/curriculo).
+  if (!profile?.profile_data) {
+    redirect("/para-candidatos/painel/curriculo");
+  }
+
+  const resumeData = normalizeResumeData(profile.profile_data);
+  const displayName = resumeData.nome || profile.full_name || "Candidato";
+
+  const plan = await getCurrentUserPlan() ?? "gratis";
+  const isPaid = plan === "impulso" || plan === "mentoria";
+  const planRank: Record<string, number> = { gratis: 0, impulso: 1, mentoria: 2 };
+
+  // Guia de onboarding — só existe pro candidato pago (ver proposta em
+  // HANDOFF.md). Nada aqui duplica o Painel de evolução: os "passos" são
+  // derivados na hora das mesmas tabelas (job_applications, mentoring_
+  // sessions), nunca gravados como progresso à parte.
+  const subscription = isPaid ? await getCurrentSubscription() : null;
+  let onboardingSteps: ReturnType<typeof getOnboardingJourney> = [];
+  if (subscription) {
+    const { data: jobApplications } = await supabase
+      .from("job_applications")
+      .select("id, linkedin_analysis_id, interview_session_id")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    const { data: mentoriaSession } = await supabase
+      .from("mentoring_sessions")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("status", "confirmed")
+      .limit(1)
+      .maybeSingle();
+
+    onboardingSteps = getOnboardingJourney({
+      hasProfile: true, // já garantido pelo redirect acima
+      jobApplication: pickCurrentJobApplication(jobApplications ?? []),
+      hasMentoriaConfirmed: !!mentoriaSession,
+      isMentoriaPlan: plan === "mentoria",
+    });
+  }
+
+  return (
+    <div className="mx-auto max-w-5xl px-5 py-16 lg:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="font-display text-display-md font-semibold text-fg">
+            Olá, {displayName.split(" ")[0]}
+          </h1>
+          <p className="mt-1 text-body-sm text-fg-muted">Suas ferramentas de IA para a busca de vagas.</p>
+        </div>
+        <Badge variant={isPaid ? "recommended" : "neutral"}>
+          Plano {planLabel[plan]}
+        </Badge>
+      </div>
+
+      {subscription && (
+        <div className="mt-10">
+          <GuidedJourney
+            subscriptionId={subscription.id}
+            steps={onboardingSteps}
+            planLabel={planLabel[plan]}
+            showIntroInitially={!subscription.onboarding_seen_at}
+          />
+        </div>
+      )}
+
+      {!isPaid && (
+        <div className="mt-10">
+          <FreePlanNudge />
+        </div>
+      )}
+
+      <div className={cn("grid gap-6 sm:grid-cols-2 lg:grid-cols-4", subscription || !isPaid ? "mt-2" : "mt-10")}>
+        {tools.map(({ icon: Icon, title, description, href, minPlan }) => {
+          const locked = planRank[plan] < planRank[minPlan];
+          return (
+            <Link
+              key={href}
+              href={href}
+              className="group relative flex flex-col rounded-lg border border-border bg-bg-surface p-6 shadow-sm transition-ryze hover:-translate-y-0.5 hover:border-accent-500/40 hover:shadow-md"
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <span className="flex h-11 w-11 items-center justify-center rounded-md bg-bg-surface-2 text-accent-600 dark:text-accent-400">
+                  <Icon className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                {locked && (
+                  <span className="flex items-center gap-1 text-caption text-fg-muted">
+                    <Lock className="h-3.5 w-3.5" />
+                    {minPlan === "mentoria" ? "Mentoria" : "Impulso+"}
+                  </span>
+                )}
+              </div>
+              <h3 className="font-display text-heading-sm font-semibold text-fg">{title}</h3>
+              <p className="mt-1 text-body-sm text-fg-muted">{description}</p>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

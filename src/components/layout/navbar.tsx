@@ -1,11 +1,10 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { headers } from "next/headers";
 import { Logo } from "@/components/brand/logo";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils";
+import { NavbarMenu } from "./navbar-menu";
+import { NavbarApp } from "./navbar-app";
 
 // "Para Candidatos" is intentionally NOT here — job seekers get the dedicated
 // "Sou candidato" corner button so the main nav stays B2B-focused.
@@ -13,23 +12,88 @@ const navLinks = [
   { label: "Consultoria", href: "/consultoria" },
   { label: "Produtos", href: "/produtos" },
   { label: "Sobre", href: "/sobre" },
-  { label: "Blog", href: "/blog" },
 ];
 
-export function Navbar() {
-  const [open, setOpen] = useState(false);
+/**
+ * Telas de maior comprometimento (criar conta / painel logado) não devem
+ * oferecer as mesmas rotas de fuga do menu institucional — achado #1 da
+ * auditoria de UX de 2026-07-22. `x-pathname` vem do proxy.ts (não dá pra
+ * usar usePathname() aqui porque o Navbar também precisa ler a sessão no
+ * servidor, e misturar client/server só pra pathname adicionaria uma segunda
+ * viagem de rede pra sessão).
+ */
+type NavbarVariant = "full" | "auth" | "app" | "gate";
+
+function getVariant(pathname: string | null): NavbarVariant {
+  if (!pathname) return "full";
+  // Página pública de candidatura a vaga — mesma lógica de "tela de
+  // formulário focada" do /cadastro/login: sem links institucionais
+  // competindo com o preenchimento (aprovado pelo cliente em 2026-07-24).
+  if (pathname === "/cadastro" || pathname === "/login" || pathname.startsWith("/vagas/")) return "auth";
+  if (pathname.startsWith("/para-candidatos/painel")) return "app";
+  // A pergunta candidato/empresa é a única decisão dessa tela — o menu
+  // continua ali (não é uma tela de formulário como /cadastro), mas com
+  // contraste reduzido pra não competir com os dois cards de escolha.
+  if (pathname === "/") return "gate";
+  return "full";
+}
+
+export async function Navbar() {
+  const pathname = (await headers()).get("x-pathname");
+  const variant = getVariant(pathname);
+
+  // Server Component: lê a sessão a partir do cookie (via middleware, que já
+  // a renovou) e passa só o e-mail — nunca o objeto de sessão inteiro — para
+  // o Client Component que decide o que renderizar.
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Forced into the dark token scope on purpose: the navbar is graphite
+  // (ink) on every page regardless of the visitor's theme, so it reads as
+  // a constant brand anchor rather than dissolving into the paper bg.
+  if (variant === "auth") {
+    return (
+      <header className="dark sticky top-0 z-50 bg-ink">
+        <div className="mx-auto flex h-18 max-w-6xl items-center px-5 lg:px-8">
+          <Link href="/" aria-label="Ryze — página inicial">
+            <Logo size="sm" />
+          </Link>
+        </div>
+      </header>
+    );
+  }
+
+  if (variant === "app") {
+    return (
+      <header className="dark sticky top-0 z-50 bg-ink">
+        <div className="mx-auto flex h-18 max-w-6xl items-center justify-between px-5 lg:px-8">
+          <Link href="/" aria-label="Ryze — página inicial">
+            <Logo size="sm" />
+          </Link>
+          <NavbarApp />
+        </div>
+      </header>
+    );
+  }
+
+  const muted = variant === "gate";
 
   return (
-    // Forced into the dark token scope on purpose: the navbar is graphite
-    // (ink) on every page regardless of the visitor's theme, so it reads as
-    // a constant brand anchor rather than dissolving into the paper bg.
     <header className="dark sticky top-0 z-50 bg-ink">
       <div className="mx-auto flex h-18 max-w-6xl items-center justify-between px-5 lg:px-8">
-        <Link href="/" aria-label="Ryze — página inicial" onClick={() => setOpen(false)}>
+        <Link href="/" aria-label="Ryze — página inicial">
           <Logo size="sm" />
         </Link>
 
-        <nav className="hidden items-center gap-7 lg:flex" aria-label="Navegação principal">
+        <nav
+          className={cn(
+            "hidden items-center gap-7 lg:flex",
+            muted && "opacity-55 transition-ryze hover:opacity-100 focus-within:opacity-100"
+          )}
+          aria-label="Navegação principal"
+        >
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -41,64 +105,8 @@ export function Navbar() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2.5 lg:flex">
-          <ThemeToggle />
-          {/* Candidate path, kept visually distinct from the B2B CTA so job
-              seekers always have a corner to go to. */}
-          <Button asChild variant="ghost" size="sm" className="border-border">
-            <Link href="/para-candidatos">Sou candidato</Link>
-          </Button>
-          <Button asChild variant="primary" size="sm">
-            <Link href="/contato">Falar com especialista</Link>
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-2 lg:hidden">
-          <ThemeToggle />
-          <button
-            type="button"
-            aria-label={open ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-fg transition-ryze hover:bg-bg-surface"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
+        <NavbarMenu navLinks={navLinks} email={user?.email ?? null} muted={muted} />
       </div>
-
-      {open && (
-        <nav
-          className="border-t border-border bg-ink px-5 py-5 lg:hidden"
-          aria-label="Navegação principal (mobile)"
-        >
-          <ul className="flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-md px-3 py-2.5 text-body-md font-medium text-fg transition-ryze hover:bg-bg-surface"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 flex flex-col gap-2.5 border-t border-border pt-4">
-            <Button asChild variant="ghost" size="md" className="border-border">
-              <Link href="/para-candidatos" onClick={() => setOpen(false)}>
-                Sou candidato
-              </Link>
-            </Button>
-            <Button asChild variant="primary" size="md">
-              <Link href="/contato" onClick={() => setOpen(false)}>
-                Falar com especialista
-              </Link>
-            </Button>
-          </div>
-        </nav>
-      )}
     </header>
   );
 }

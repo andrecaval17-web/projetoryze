@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 export interface LoginState {
@@ -18,10 +19,28 @@ export async function signIn(
     return { status: "error", message: "Informe e-mail e senha." };
   }
 
+  let signedIn = false;
+  let isAdmin = false;
+
   try {
-    const supabase = getSupabaseServerClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const supabase = await getSupabaseServerClient();
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    signedIn = true;
+
+    // Conta de admin (equipe/owner) loga direto em /admin — é onde essa
+    // conta trabalha no dia a dia, não na área de candidato. Falha nesta
+    // checagem não deve barrar o login: só faz cair no destino de candidato.
+    try {
+      const { data: adminRow } = await supabase
+        .from("admin_users")
+        .select("user_id")
+        .eq("user_id", data.user?.id ?? "")
+        .maybeSingle();
+      isAdmin = !!adminRow;
+    } catch (adminErr) {
+      console.error("Failed to check admin_users after login", adminErr);
+    }
   } catch (err) {
     console.error("Login failed", err);
     return {
@@ -30,6 +49,18 @@ export async function signIn(
     };
   }
 
-  // Sessão com cookies + redirecionamento ao painel chegam na Fase 4.
-  return { status: "success", message: "Login confirmado! O painel do candidato chega em breve." };
+  // redirect() fora do try/catch — ver nota equivalente em cadastro/actions.ts.
+  // Candidato cai no painel dele (que, sem perfil ainda, encaminha pro
+  // "Preencher perfil" automaticamente) em vez da home institucional.
+  if (signedIn) {
+    redirect(isAdmin ? "/admin" : "/para-candidatos/painel");
+  }
+
+  return { status: "success" };
+}
+
+export async function signOut() {
+  const supabase = await getSupabaseServerClient();
+  await supabase.auth.signOut();
+  redirect("/");
 }

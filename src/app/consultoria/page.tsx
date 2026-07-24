@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Search, Users2, LineChart, GraduationCap } from "lucide-react";
 import { PageHero } from "@/components/sections/page-hero";
 import { ResultsBand } from "@/components/sections/results-band";
 import { CtaBand } from "@/components/sections/cta-band";
 import { ServiceCard } from "@/components/ui/service-card";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Consultoria em Recursos Humanos — Ryze",
@@ -69,7 +71,11 @@ export default function ConsultoriaPage() {
         eyebrow="Consultoria em RH"
         title="RH estratégico, com metodologia e resultado"
         subtitle="Atuamos nas frentes que mais impactam o negócio: quem você contrata, a cultura que retém, o que você paga e como desenvolve as pessoas."
-      />
+      >
+        <Button asChild size="lg">
+          <Link href="/contato">Falar com um especialista</Link>
+        </Button>
+      </PageHero>
 
       <section className="mx-auto max-w-6xl px-5 py-16 lg:px-8">
         <div className="grid gap-6 sm:grid-cols-2">
