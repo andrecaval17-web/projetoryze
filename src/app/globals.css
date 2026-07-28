@@ -85,6 +85,37 @@
   --shadow-color: 0 0% 0%;
 }
 
+/* Força um sub-trecho pro tema claro independente do tema global do site
+   (alternado pelo visitante e persistido em localStorage/`html.dark`) —
+   usado no /vagas-admin, que o cliente pediu sempre claro, com identidade
+   própria, não amarrado à preferência de tema de quem está navegando
+   (2026-07-24, quarta rodada). Redeclara a rampa neutra + superfícies
+   semânticas com os mesmos valores de `:root`; `--ink`, `--paper` e os
+   tons de accent são compartilhados entre os temas e não precisam repetir
+   aqui. Custom properties resolvem pelo ancestral mais próximo que as
+   define, então isso vence qualquer `.dark` mais acima na árvore. */
+.light {
+  --neutral-50: #f3f0ea;
+  --neutral-100: #ebe7df;
+  --neutral-200: #ddd7cc;
+  --neutral-300: #c9c1b3;
+  --neutral-400: #ada396;
+  --neutral-500: #8f8577;
+  --neutral-600: #736a5e;
+  --neutral-700: #5a5248;
+  --neutral-800: #443e36;
+  --neutral-900: #2e2c2a;
+
+  --bg: var(--paper);
+  --bg-surface: var(--neutral-100);
+  --bg-surface-2: var(--neutral-200);
+  --fg: var(--ink);
+  --fg-muted: var(--ink-muted);
+  --border: var(--neutral-300);
+  --border-strong: var(--neutral-400);
+  --shadow-color: 39 26% 12%;
+}
+
 @theme inline {
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);

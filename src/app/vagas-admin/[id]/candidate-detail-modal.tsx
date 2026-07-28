@@ -50,7 +50,7 @@ export function CandidateDetailModal({ application, onClose, onStatusChange }: C
           </div>
           {application.score !== null && (
             <div className="flex shrink-0 flex-col items-center rounded-lg bg-bg-surface-2 px-4 py-2 text-center">
-              <span className="font-display text-display-sm font-bold leading-none text-accent-600 dark:text-accent-400">
+              <span className="font-display text-display-sm font-bold leading-none text-accent-600">
                 {application.score}
               </span>
               <span className="text-caption text-fg-muted">/ 100</span>
@@ -66,7 +66,7 @@ export function CandidateDetailModal({ application, onClose, onStatusChange }: C
               href={application.linkedinUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-accent-600 hover:underline dark:text-accent-400"
+              className="inline-flex items-center gap-1 text-accent-600 hover:underline"
             >
               LinkedIn <ExternalLink className="h-3 w-3" />
             </a>
@@ -76,7 +76,7 @@ export function CandidateDetailModal({ application, onClose, onStatusChange }: C
               href={application.resumeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-accent-600 hover:underline dark:text-accent-400"
+              className="inline-flex items-center gap-1 text-accent-600 hover:underline"
             >
               <FileDown className="h-3.5 w-3.5" /> Currículo (PDF)
             </a>

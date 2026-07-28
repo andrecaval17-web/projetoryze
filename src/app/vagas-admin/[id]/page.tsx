@@ -1,23 +1,21 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, KanbanSquare } from "lucide-react";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { AiMarkdown } from "@/components/ui/ai-markdown";
 import { toMarkdownParagraphs } from "@/lib/ats/format-description";
 import { JobStatusSelect } from "../job-status-select";
-import { KanbanBoard, type KanbanApplication, type AnswerItem } from "./kanban-board";
-import type { ApplicationStatus, JobStatus } from "../actions";
+import type { JobStatus } from "../actions";
 
 const STATUS_BADGE: Record<JobStatus, "accent-soft" | "neutral" | "outline"> = {
   aberta: "accent-soft",
   pausada: "neutral",
   encerrada: "outline",
 };
-
-const RESUME_SIGNED_URL_TTL_SECONDS = 60 * 60;
 
 function buildDivulgacaoText(title: string, description: string, publicUrl: string): string {
   return `📢 Estamos contratando: ${title}\n\n${description}\n\nCandidate-se pelo link:\n${publicUrl}`;
@@ -33,7 +31,7 @@ export default async function VagaAdminDetailPage({
   const supabase = getSupabaseAdminClient();
   const { data: job } = await supabase
     .from("ats_job_postings")
-    .select("id, title, description, requirements, slug, status, created_at")
+    .select("id, title, description, requirements, slug, status, created_at, ats_applications(count)")
     .eq("id", id)
     .maybeSingle();
 
@@ -41,61 +39,13 @@ export default async function VagaAdminDetailPage({
     notFound();
   }
 
-  const { data: applications } = await supabase
-    .from("ats_applications")
-    .select(
-      "id, name, email, phone, linkedin_url, resume_storage_path, score, score_reasoning, pipeline_status, created_at, candidate_user_id"
-    )
-    .eq("job_posting_id", id)
-    .order("score", { ascending: false, nullsFirst: false });
-
   const { data: questions } = await supabase
     .from("ats_job_questions")
     .select("id, question")
     .eq("job_posting_id", id)
     .order("display_order", { ascending: true });
 
-  const questionMap = new Map((questions ?? []).map((q) => [q.id, q.question]));
-
-  const applicationIds = (applications ?? []).map((app) => app.id);
-  const { data: answers } =
-    applicationIds.length > 0
-      ? await supabase
-          .from("ats_application_answers")
-          .select("application_id, question_id, answer")
-          .in("application_id", applicationIds)
-      : { data: [] };
-
-  const answersByApplication = new Map<string, AnswerItem[]>();
-  for (const answer of answers ?? []) {
-    const question = questionMap.get(answer.question_id);
-    if (!question) continue;
-    const list = answersByApplication.get(answer.application_id) ?? [];
-    list.push({ question, answer: answer.answer });
-    answersByApplication.set(answer.application_id, list);
-  }
-
-  const kanbanApplications: KanbanApplication[] = await Promise.all(
-    (applications ?? []).map(async (app) => {
-      const { data: signed } = await supabase.storage
-        .from("ats-resumes")
-        .createSignedUrl(app.resume_storage_path, RESUME_SIGNED_URL_TTL_SECONDS);
-      return {
-        id: app.id,
-        name: app.name,
-        email: app.email,
-        phone: app.phone,
-        linkedinUrl: app.linkedin_url,
-        resumeUrl: signed?.signedUrl ?? null,
-        score: app.score,
-        scoreReasoning: app.score_reasoning,
-        pipelineStatus: app.pipeline_status as ApplicationStatus,
-        createdAt: app.created_at,
-        candidateUserId: app.candidate_user_id,
-        answers: answersByApplication.get(app.id) ?? [],
-      };
-    })
-  );
+  const applicationCount = job.ats_applications?.[0]?.count ?? 0;
 
   const host = (await headers()).get("host");
   const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
@@ -118,7 +68,24 @@ export default async function VagaAdminDetailPage({
         <JobStatusSelect jobId={job.id} status={job.status as JobStatus} />
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6 rounded-xl border border-accent-500/40 bg-accent-500/5 p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="font-display text-heading-md font-semibold text-fg">Pipeline de candidaturas</h2>
+            <p className="mt-1 text-body-sm text-fg-muted">
+              {applicationCount} candidatura{applicationCount === 1 ? "" : "s"} — quadro kanban por etapa, com análise de aderência.
+            </p>
+          </div>
+          <Button asChild>
+            <Link href={`/vagas-admin/${job.id}/pipeline`}>
+              <KanbanSquare className="h-4 w-4" />
+              Ver pipeline
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border border-border bg-bg-surface p-6">
           <h2 className="font-display text-heading-sm font-semibold text-fg">Link público</h2>
           <p className="mt-2 break-all text-body-sm text-fg-muted">{publicUrl}</p>
@@ -152,27 +119,6 @@ export default async function VagaAdminDetailPage({
           )}
         </div>
       </details>
-
-      <div className="mt-10 flex items-center justify-between">
-        <div>
-          <h2 className="font-display text-heading-md font-semibold text-fg">
-            Candidaturas ({kanbanApplications.length})
-          </h2>
-          <p className="mt-1 text-body-sm text-fg-muted">
-            Mude a etapa direto no seletor do card, ou clique no card pra ver a análise completa.
-          </p>
-        </div>
-      </div>
-
-      {kanbanApplications.length > 0 ? (
-        <div className="mt-5">
-          <KanbanBoard jobId={job.id} applications={kanbanApplications} />
-        </div>
-      ) : (
-        <p className="mt-5 rounded-xl border border-border bg-bg-surface p-8 text-center text-body-sm text-fg-muted">
-          Nenhuma candidatura recebida ainda.
-        </p>
-      )}
     </div>
   );
 }
