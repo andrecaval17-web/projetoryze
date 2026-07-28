@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getStripeClient } from "@/lib/stripe/server";
 import { getPlan } from "@/lib/plans";
+import { createCadastroTalentPoolEntry } from "@/lib/talent-pool";
 
 export interface SignupState {
   status: "idle" | "success" | "error" | "email_exists";
@@ -78,6 +79,13 @@ export async function signUp(
       message:
         "Não foi possível criar a conta agora. Tente novamente em instantes.",
     };
+  }
+
+  // Todo cadastro — gratuito ou pago — entra no banco de talentos (ver
+  // seção 12 dos Termos de Uso, aceitos acima). Best-effort: nunca deve
+  // impedir a criação da conta.
+  if (userId) {
+    await createCadastroTalentPoolEntry(userId, name, email);
   }
 
   const plan = getPlan(planSlug);

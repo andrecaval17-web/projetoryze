@@ -6,6 +6,7 @@ import { logAiUsage } from "@/lib/ai/usage";
 import { extractPdfText, extractDocxText } from "@/lib/pdf";
 import { parseResumeJson, normalizeResumeData, type ResumeData } from "@/lib/resume-schema";
 import { maybeSendWhatsappInvite } from "@/lib/whatsapp-invite";
+import { updateCadastroTalentPoolEntry } from "@/lib/talent-pool";
 
 const MAX_FILE_SIZE_BYTES = 6 * 1024 * 1024;
 
@@ -205,6 +206,18 @@ export async function saveBaseProfile(
     console.error("Failed to save base profile", error);
     return { status: "error", message: "Não foi possível salvar agora. Tente novamente." };
   }
+
+  // Mantém a entrada do banco de talentos (criada no cadastro) sincronizada
+  // com cargo desejado/habilidades/resumo — esses campos só existem a
+  // partir do primeiro salvamento do perfil, não no momento do cadastro.
+  await updateCadastroTalentPoolEntry(user.id, {
+    name: normalized.nome || (user.user_metadata?.full_name as string) || "",
+    email: user.email ?? "",
+    phone: normalized.contato.telefone || null,
+    targetRole: normalized.titulo || null,
+    skills: normalized.habilidades,
+    summary: normalized.resumo || null,
+  });
 
   // Só dispara pro plano Grátis, e só em salvamento manual (ver comentário
   // no parâmetro `isManualSave`) — é o único caso em que salvar o perfil É

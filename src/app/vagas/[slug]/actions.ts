@@ -5,6 +5,7 @@ import { getAiClient, AI_MODELS } from "@/lib/ai/client";
 import { logAiUsage } from "@/lib/ai/usage";
 import { extractPdfText } from "@/lib/pdf";
 import { findUserIdByEmail } from "@/lib/admin/find-user-by-email";
+import { createApplicationTalentPoolEntry } from "@/lib/talent-pool";
 
 export interface ApplicationState {
   status: "idle" | "success" | "error";
@@ -44,10 +45,16 @@ export async function submitApplication(
   const email = String(formData.get("email") || "").trim();
   const phone = String(formData.get("phone") || "").trim();
   const linkedinUrl = String(formData.get("linkedin_url") || "").trim();
+  const acceptedTerms = formData.get("terms") === "on";
   const file = formData.get("resume");
 
   if (!jobPostingId || !name || !email) {
     return { status: "error", message: "Preencha nome e e-mail." };
+  }
+  // O checkbox já é `required` no HTML, mas o servidor nunca confia só na
+  // validação do client (mesmo padrão do cadastro de candidato).
+  if (!acceptedTerms) {
+    return { status: "error", message: "É necessário aceitar os Termos de Uso para se candidatar." };
   }
   if (!(file instanceof File) || file.size === 0) {
     return { status: "error", message: "Selecione o PDF do seu currículo." };
@@ -188,6 +195,19 @@ Responda SOMENTE com um objeto JSON válido (sem markdown, sem \`\`\`, sem texto
       console.error("Failed to save ATS application answers", answersError);
     }
   }
+
+  // Toda candidatura vira uma cópia no banco de talentos (ver seção 12 dos
+  // Termos de Uso, aceitos acima) — best-effort, nunca bloqueia o envio.
+  await createApplicationTalentPoolEntry({
+    atsApplicationId: application.id,
+    candidateUserId,
+    name,
+    email,
+    phone: phone || null,
+    linkedinUrl: linkedinUrl || null,
+    resumeStoragePath,
+    summary: extractedText.slice(0, 2000) || null,
+  });
 
   return { status: "success" };
 }

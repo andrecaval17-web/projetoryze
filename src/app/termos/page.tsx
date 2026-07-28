@@ -135,7 +135,20 @@ export default function TermosPage() {
         </p>
       </Section>
 
-      <Section title="12. Contato">
+      <Section title="12. Banco de Talentos">
+        <p>
+          Ao criar uma conta na Plataforma — gratuita ou paga — ou ao se candidatar a uma vaga
+          divulgada pela Ryze, você passa a integrar o nosso banco de talentos. Isso significa que
+          seus dados de contato e perfil profissional (nome, e-mail, telefone, cargo desejado,
+          habilidades, resumo profissional e currículo, quando enviado) ficam disponíveis
+          internamente para que a equipe da Ryze possa considerá-lo(a) para vagas futuras, sejam
+          elas da própria Ryze ou de empresas clientes. A inclusão no banco de talentos é parte
+          integrante do serviço e não exige um consentimento separado — ela ocorre
+          automaticamente a partir do cadastro ou da candidatura, conforme o caso.
+        </p>
+      </Section>
+
+      <Section title="13. Contato">
         <p>
           Dúvidas sobre estes Termos podem ser enviadas para{" "}
           <a href="mailto:contato@ryze.com.br" className="text-accent-600 underline underline-offset-2 dark:text-accent-400">
