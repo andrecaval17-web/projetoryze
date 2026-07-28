@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import { CheckCircle2, AlertCircle, UserPlus } from "lucide-react";
 import { signIn, type LoginState } from "./actions";
 import { FormField } from "@/components/ui/form-field";
@@ -44,6 +45,13 @@ export function LoginForm({ prefillEmail, onOfferSignup }: LoginFormProps) {
       <FormField label="Senha" htmlFor="password" required>
         <Input id="password" name="password" type="password" placeholder="••••••••" required />
       </FormField>
+
+      <Link
+        href="/esqueci-senha"
+        className="-mt-2.5 self-end text-body-sm text-accent-600 underline underline-offset-2 dark:text-accent-400"
+      >
+        Esqueci minha senha
+      </Link>
 
       {state.status === "error" && (
         <div className="flex flex-col gap-2.5 rounded-md bg-error/10 px-4 py-3">
