@@ -33,30 +33,3 @@ export function AiDemoPanel({ label, title, children }: AiDemoPanelProps) {
     </div>
   );
 }
-
-interface MatchRowProps {
-  name: string;
-  role: string;
-  match: number;
-}
-
-/** One candidate row for the Recrutamento IA demo — a gradient bar reading as a live match score. */
-export function MatchRow({ name, role, match }: MatchRowProps) {
-  return (
-    <div className="flex items-center gap-4 py-2.5">
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-body-sm font-medium text-fg">{name}</p>
-        <p className="truncate text-caption text-fg-muted">{role}</p>
-      </div>
-      <div className="h-1.5 w-28 overflow-hidden rounded-full bg-bg-surface-2">
-        <div
-          className="h-full rounded-full bg-gradient-ryze"
-          style={{ width: `${match}%` }}
-        />
-      </div>
-      <span className="w-10 shrink-0 text-right text-body-sm font-semibold text-gradient-ryze">
-        {match}%
-      </span>
-    </div>
-  );
-}

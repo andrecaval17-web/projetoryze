@@ -11,6 +11,8 @@ interface ResultsBandProps {
   title: string;
   subtitle?: string;
   stats: ResultStat[];
+  /** Optional closing remark shown below the stat grid, inside the same band — for a note that comments on the stats above without becoming its own orphaned section. */
+  note?: string;
   tone?: "light" | "dark";
   className?: string;
 }
@@ -21,7 +23,7 @@ interface ResultsBandProps {
  * client metrics — the "Fonte:" caption is what makes the number credible
  * commercially instead of looking invented.
  */
-export function ResultsBand({ title, subtitle, stats, tone = "light", className }: ResultsBandProps) {
+export function ResultsBand({ title, subtitle, stats, note, tone = "light", className }: ResultsBandProps) {
   return (
     <section
       className={cn(
@@ -50,6 +52,8 @@ export function ResultsBand({ title, subtitle, stats, tone = "light", className 
             </div>
           ))}
         </dl>
+
+        {note && <p className="mx-auto mt-8 max-w-2xl text-center text-body-md text-fg-muted">{note}</p>}
       </div>
     </section>
   );

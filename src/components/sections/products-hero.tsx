@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
-import { AiDemoPanel, MatchRow } from "./ai-demo-panel";
 
 interface ProductsHeroProps {
   eyebrow: string;
   title: ReactNode;
   subtitle: string;
   primaryCta: ReactNode;
+  /** The "IA em ação" demo shown beside the headline — pass an `AiDemoPanel` (or similar) with content that matches the products actually being sold on this page. */
+  demo: ReactNode;
 }
 
 /**
@@ -14,7 +15,7 @@ interface ProductsHeroProps {
  * headline — so the "IA em ação" shows up immediately, not a repeat of the
  * centered arrow + stats treatment.
  */
-export function ProductsHero({ eyebrow, title, subtitle, primaryCta }: ProductsHeroProps) {
+export function ProductsHero({ eyebrow, title, subtitle, primaryCta, demo }: ProductsHeroProps) {
   return (
     <section className="dark relative overflow-hidden bg-bg px-5 py-20 text-fg lg:px-8">
       <div
@@ -41,17 +42,7 @@ export function ProductsHero({ eyebrow, title, subtitle, primaryCta }: ProductsH
           <div className="mt-8">{primaryCta}</div>
         </div>
 
-        <AiDemoPanel
-          label="Ryze IA · Análise em tempo real"
-          title="Ranqueando candidatos para Analista de Marketing Sênior"
-        >
-          <div className="flex flex-col divide-y divide-border">
-            <MatchRow name="Camila Andrade" role="8 anos · Growth" match={96} />
-            <MatchRow name="Rafael Nogueira" role="6 anos · Performance" match={91} />
-            <MatchRow name="Beatriz Lima" role="5 anos · Conteúdo" match={84} />
-            <MatchRow name="Thiago Souza" role="7 anos · Marca" match={78} />
-          </div>
-        </AiDemoPanel>
+        {demo}
       </div>
     </section>
   );

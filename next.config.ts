@@ -32,6 +32,24 @@ const nextConfig: NextConfig = {
     ],
     "/vagas/[slug]": ["./node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs"],
   },
+  // Reformulação de /produtos em 2026-07-26: só a Academy e a Cultura têm
+  // produto pronto. Educação Corporativa virou a landing dedicada da
+  // Academy; Recrutamento com IA saiu do ar (produto ainda não está pronto)
+  // e volta pro hub em vez de 404 em links já compartilhados.
+  async redirects() {
+    return [
+      {
+        source: "/produtos/educacao-corporativa",
+        destination: "/produtos/academy",
+        permanent: true,
+      },
+      {
+        source: "/produtos/recrutamento-ia",
+        destination: "/produtos",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -16,8 +16,8 @@ const columns = [
   {
     title: "Produtos",
     links: [
-      { label: "Recrutamento com IA", href: "/produtos/recrutamento-ia" },
-      { label: "Educação Corporativa", href: "/produtos/educacao-corporativa" },
+      { label: "Ryze Academy", href: "/produtos/academy" },
+      { label: "Cultura & Engajamento", href: "/produtos/cultura" },
     ],
   },
   {

@@ -383,15 +383,15 @@ export default function DesignSystemPage() {
         <div className="grid gap-6 sm:grid-cols-2">
           <ProductCard
             icon={BrainCircuit}
-            title="Recrutamento com IA"
-            description="Hunting e análise automática de candidatos com inteligência artificial."
-            href="/produtos/recrutamento-ia"
+            title="Cultura & Engajamento"
+            description="Escuta contínua e mentor com IA para cada liderança."
+            href="/produtos/cultura"
           />
           <ProductCard
             icon={GraduationCap}
-            title="Educação Corporativa"
+            title="Ryze Academy"
             description="Trilhas de aprendizagem personalizadas para o seu time."
-            href="/produtos/educacao-corporativa"
+            href="/produtos/academy"
           />
         </div>
 
