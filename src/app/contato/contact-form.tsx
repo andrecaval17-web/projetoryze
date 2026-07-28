@@ -12,7 +12,13 @@ import { Button } from "@/components/ui/button";
 
 const initialState: LeadFormState = { status: "idle" };
 
-export function ContactForm() {
+export function ContactForm({
+  initialProduct,
+  initialIntent,
+}: {
+  initialProduct?: string;
+  initialIntent?: string;
+}) {
   const [state, formAction, isPending] = useActionState(submitLead, initialState);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -24,6 +30,9 @@ export function ContactForm() {
 
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-5">
+      {initialProduct && <input type="hidden" name="produto" value={initialProduct} />}
+      {initialIntent && <input type="hidden" name="intencao" value={initialIntent} />}
+
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField label="Nome completo" htmlFor="name" required>
           <Input id="name" name="name" placeholder="Seu nome" required />
@@ -43,7 +52,7 @@ export function ContactForm() {
       </div>
 
       <FormField label="Área de interesse" htmlFor="type">
-        <Select id="type" name="type" defaultValue="consultoria">
+        <Select id="type" name="type" defaultValue={initialProduct ? "produtos" : "consultoria"}>
           <option value="consultoria">Consultoria em RH</option>
           <option value="produtos">Produtos de IA</option>
           <option value="candidato">Sou candidato</option>

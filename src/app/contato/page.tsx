@@ -14,7 +14,29 @@ const info = [
   { icon: MapPin, label: "Atendimento em todo o Brasil" },
 ];
 
-export default function ContatoPage() {
+const PRODUCT_LABELS: Record<string, string> = {
+  academy: "Ryze Academy",
+  cultura: "Ryze HR · Cultura & Engajamento",
+};
+
+const INTENT_LABELS: Record<string, string> = {
+  especialista: "Falar com um especialista",
+  demonstracao: "Agendar demonstração",
+};
+
+export default async function ContatoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ produto?: string; intencao?: string }>;
+}) {
+  const { produto, intencao } = await searchParams;
+  // Só aceita os valores que os próprios CTAs de /produtos/* geram — nunca
+  // reflete texto arbitrário da query string de volta pra tela.
+  const productLabel = produto ? PRODUCT_LABELS[produto] : undefined;
+  const intentLabel = intencao ? INTENT_LABELS[intencao] : undefined;
+  const validProduct = productLabel ? produto : undefined;
+  const validIntent = intentLabel ? intencao : undefined;
+
   return (
     <>
       <PageHero
@@ -50,7 +72,13 @@ export default function ContatoPage() {
           </div>
 
           <div className="rounded-xl border border-border bg-bg-surface p-6 sm:p-8">
-            <ContactForm />
+            {productLabel && (
+              <p className="mb-6 rounded-md bg-accent-500/10 px-4 py-3 text-body-sm text-accent-600 dark:text-accent-400">
+                Assunto: <strong className="font-semibold">{productLabel}</strong>
+                {intentLabel && <> — {intentLabel}</>}
+              </p>
+            )}
+            <ContactForm initialProduct={validProduct} initialIntent={validIntent} />
           </div>
         </div>
       </section>
