@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FileText, MessageSquare, Lock, CalendarCheck, TrendingUp } from "lucide-react";
+import { FileText, MessageSquare, Lock, CalendarCheck, TrendingUp, Check } from "lucide-react";
 import { getSupabaseServerClient, getCurrentUserPlan, getCurrentSubscription } from "@/lib/supabase/server";
 import { normalizeResumeData } from "@/lib/resume-schema";
 import { Badge } from "@/components/ui/badge";
@@ -81,15 +81,19 @@ export default async function PainelPage() {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  // O painel depende do perfil base do candidato (usado pela IA depois) —
-  // sem isso, manda primeiro para o formulário que o coleta (o único
-  // formulário de entrada agora é o "Preencher perfil" em /painel/curriculo).
-  if (!profile?.profile_data) {
-    redirect("/para-candidatos/painel/curriculo");
-  }
-
-  const resumeData = normalizeResumeData(profile.profile_data);
-  const displayName = resumeData.nome || profile.full_name || "Candidato";
+  // Antes redirecionava direto pro "Preencher perfil" quando não havia
+  // perfil ainda — o candidato Grátis nunca via o hub com os outros planos
+  // a não ser que clicasse "Voltar". Pedido do cliente em 2026-07-28: a
+  // primeira tela mostra todas as ferramentas/planos, com "Currículo com
+  // IA" (Grátis) destacado como já disponível — ver highlightAvailable
+  // abaixo — em vez de forçar direto pro formulário.
+  const hasProfile = !!profile?.profile_data;
+  const resumeData = hasProfile ? normalizeResumeData(profile.profile_data) : null;
+  const displayName =
+    resumeData?.nome ||
+    profile?.full_name ||
+    (user.user_metadata?.full_name as string | undefined) ||
+    "Candidato";
 
   const plan = await getCurrentUserPlan() ?? "gratis";
   const isPaid = plan === "impulso" || plan === "mentoria";
@@ -117,7 +121,7 @@ export default async function PainelPage() {
       .maybeSingle();
 
     onboardingSteps = getOnboardingJourney({
-      hasProfile: true, // já garantido pelo redirect acima
+      hasProfile,
       jobApplication: pickCurrentJobApplication(jobApplications ?? []),
       hasMentoriaConfirmed: !!mentoriaSession,
       isMentoriaPlan: plan === "mentoria",
@@ -149,7 +153,7 @@ export default async function PainelPage() {
         </div>
       )}
 
-      {!isPaid && (
+      {!isPaid && hasProfile && (
         <div className="mt-10">
           <FreePlanNudge />
         </div>
@@ -158,22 +162,43 @@ export default async function PainelPage() {
       <div className={cn("grid gap-6 sm:grid-cols-2 lg:grid-cols-4", subscription || !isPaid ? "mt-2" : "mt-10")}>
         {tools.map(({ icon: Icon, title, description, href, minPlan }) => {
           const locked = planRank[plan] < planRank[minPlan];
+          // Único recurso do plano Grátis — destaque sólido (não só a
+          // ausência de cadeado) pra ficar óbvio que é o que o candidato já
+          // tem acesso, independente do plano dele.
+          const highlightAvailable = minPlan === "gratis";
           return (
             <Link
               key={href}
               href={href}
-              className="group relative flex flex-col rounded-lg border border-border bg-bg-surface p-6 shadow-sm transition-ryze hover:-translate-y-0.5 hover:border-accent-500/40 hover:shadow-md"
+              className={cn(
+                "group relative flex flex-col rounded-lg border p-6 shadow-sm transition-ryze hover:-translate-y-0.5 hover:shadow-md",
+                highlightAvailable
+                  ? "border-accent-500/50 bg-accent-500/5 hover:border-accent-500"
+                  : "border-border bg-bg-surface hover:border-accent-500/40"
+              )}
             >
               <div className="mb-4 flex items-center justify-between">
-                <span className="flex h-11 w-11 items-center justify-center rounded-md bg-bg-surface-2 text-accent-600 dark:text-accent-400">
+                <span
+                  className={cn(
+                    "flex h-11 w-11 items-center justify-center rounded-md",
+                    highlightAvailable
+                      ? "bg-gradient-ryze text-white shadow-glow-sm"
+                      : "bg-bg-surface-2 text-accent-600 dark:text-accent-400"
+                  )}
+                >
                   <Icon className="h-5 w-5" strokeWidth={1.75} />
                 </span>
-                {locked && (
+                {locked ? (
                   <span className="flex items-center gap-1 text-caption text-fg-muted">
                     <Lock className="h-3.5 w-3.5" />
                     {minPlan === "mentoria" ? "Mentoria" : "Impulso+"}
                   </span>
-                )}
+                ) : highlightAvailable ? (
+                  <span className="flex items-center gap-1 text-caption font-medium text-accent-600 dark:text-accent-400">
+                    <Check className="h-3.5 w-3.5" />
+                    Disponível
+                  </span>
+                ) : null}
               </div>
               <h3 className="font-display text-heading-sm font-semibold text-fg">{title}</h3>
               <p className="mt-1 text-body-sm text-fg-muted">{description}</p>

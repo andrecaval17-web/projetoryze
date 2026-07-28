@@ -50,8 +50,9 @@ export async function signIn(
   }
 
   // redirect() fora do try/catch — ver nota equivalente em cadastro/actions.ts.
-  // Candidato cai no painel dele (que, sem perfil ainda, encaminha pro
-  // "Preencher perfil" automaticamente) em vez da home institucional.
+  // Candidato cai no painel dele (mostra todas as ferramentas/planos, com
+  // "Currículo com IA" destacado se ainda não tem perfil) em vez da home
+  // institucional.
   if (signedIn) {
     redirect(isAdmin ? "/admin" : "/para-candidatos/painel");
   }

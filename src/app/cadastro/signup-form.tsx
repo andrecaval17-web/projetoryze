@@ -19,9 +19,9 @@ interface SignupFormProps {
 
 export function SignupForm({ plan, prefillEmail, onOfferLogin }: SignupFormProps) {
   // signUp() sempre faz redirect() em caso de sucesso (Stripe Checkout para
-  // planos pagos, /para-candidatos/painel/curriculo para o Grátis) — o
-  // estado aqui só é usado para mostrar erro/e-mail duplicado; um "success"
-  // nunca chega a renderizar.
+  // planos pagos, /para-candidatos/painel para o Grátis) — o estado aqui só
+  // é usado para mostrar erro/e-mail duplicado; um "success" nunca chega a
+  // renderizar.
   const [state, formAction, isPending] = useActionState(signUp, initialState);
   const [email, setEmail] = useState(prefillEmail ?? "");
 

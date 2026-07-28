@@ -154,9 +154,9 @@ export async function signUp(
     redirect(checkoutUrl);
   }
 
-  // Plano Grátis: manda direto pro painel — como o candidato ainda não tem
-  // perfil, o painel encaminha automaticamente pro "Preencher perfil" (o
-  // único formulário de entrada agora), que libera o link do grupo de
-  // WhatsApp ao final.
-  redirect("/para-candidatos/painel/curriculo");
+  // Plano Grátis: manda pro hub — mostra todas as ferramentas/planos com o
+  // Currículo com IA já destacado como disponível, em vez de pular direto
+  // pro formulário de perfil (pedido do cliente em 2026-07-28: a primeira
+  // tela precisa deixar claro o que existe além do que o Grátis já libera).
+  redirect("/para-candidatos/painel");
 }
