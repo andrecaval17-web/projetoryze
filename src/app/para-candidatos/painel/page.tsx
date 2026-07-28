@@ -162,10 +162,14 @@ export default async function PainelPage() {
       <div className={cn("grid gap-6 sm:grid-cols-2 lg:grid-cols-4", subscription || !isPaid ? "mt-2" : "mt-10")}>
         {tools.map(({ icon: Icon, title, description, href, minPlan }) => {
           const locked = planRank[plan] < planRank[minPlan];
-          // Único recurso do plano Grátis — destaque sólido (não só a
-          // ausência de cadeado) pra ficar óbvio que é o que o candidato já
-          // tem acesso, independente do plano dele.
-          const highlightAvailable = minPlan === "gratis";
+          // Toda ferramenta já liberada pro plano atual ganha destaque
+          // sólido (não só a ausência de cadeado) — no Grátis só o
+          // Currículo cai aqui, mas no Impulso/Mentoria isso cobre várias
+          // ferramentas de uma vez. Achado do cliente em 2026-07-28: antes
+          // isso era fixo em `minPlan === "gratis"`, então uma conta
+          // Mentoria via só o Currículo destacado mesmo com as outras 4
+          // ferramentas já liberadas.
+          const highlightAvailable = !locked;
           return (
             <Link
               key={href}
@@ -193,12 +197,12 @@ export default async function PainelPage() {
                     <Lock className="h-3.5 w-3.5" />
                     {minPlan === "mentoria" ? "Mentoria" : "Impulso+"}
                   </span>
-                ) : highlightAvailable ? (
+                ) : (
                   <span className="flex items-center gap-1 text-caption font-medium text-accent-600 dark:text-accent-400">
                     <Check className="h-3.5 w-3.5" />
                     Disponível
                   </span>
-                ) : null}
+                )}
               </div>
               <h3 className="font-display text-heading-sm font-semibold text-fg">{title}</h3>
               <p className="mt-1 text-body-sm text-fg-muted">{description}</p>
