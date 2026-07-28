@@ -58,7 +58,7 @@ export async function Navbar() {
       <header className="dark sticky top-0 z-50 bg-ink">
         <div className="mx-auto flex h-18 max-w-6xl items-center px-5 lg:px-8">
           <Link href="/" aria-label="Ryze — página inicial">
-            <Logo size="sm" />
+            <Logo size="sm" tone="dark-bg" />
           </Link>
         </div>
       </header>
@@ -70,7 +70,7 @@ export async function Navbar() {
       <header className="dark sticky top-0 z-50 bg-ink">
         <div className="mx-auto flex h-18 max-w-6xl items-center justify-between px-5 lg:px-8">
           <Link href="/" aria-label="Ryze — página inicial">
-            <Logo size="sm" />
+            <Logo size="sm" tone="dark-bg" />
           </Link>
           <NavbarApp />
         </div>
@@ -84,7 +84,7 @@ export async function Navbar() {
     <header className="dark sticky top-0 z-50 bg-ink">
       <div className="mx-auto flex h-18 max-w-6xl items-center justify-between px-5 lg:px-8">
         <Link href="/" aria-label="Ryze — página inicial">
-          <Logo size="sm" />
+          <Logo size="sm" tone="dark-bg" />
         </Link>
 
         <nav

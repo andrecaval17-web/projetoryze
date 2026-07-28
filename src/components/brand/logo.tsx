@@ -1,36 +1,70 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { FoldArrow } from "./fold-arrow";
 
 interface LogoProps {
   className?: string;
   size?: "sm" | "md" | "lg";
   showTagline?: boolean;
+  /**
+   * "auto" (padrão) troca de variante com o tema ambiente do site (wordmark
+   * escuro no claro, claro no escuro) — para contextos onde o fundo em volta
+   * do logo não é forçado, como a tela de cadastro/login. "dark-bg" fixa a
+   * variante de wordmark clara, para lugares com fundo escuro forçado
+   * (navbar e footer, ambos `.dark bg-ink` independente do tema do site).
+   */
+  tone?: "auto" | "dark-bg";
 }
 
+// Proporção real dos arquivos em public/brand/ryze-logo*.png (874×426).
+const LOGO_ASPECT = 874 / 426;
+
 const sizes = {
-  sm: { text: "text-xl", arrow: "h-5 w-4", gap: "gap-0.5" },
-  md: { text: "text-2xl", arrow: "h-7 w-5", gap: "gap-1" },
-  lg: { text: "text-4xl", arrow: "h-10 w-8", gap: "gap-1.5" },
+  sm: 28,
+  md: 36,
+  lg: 56,
 };
 
-export function Logo({ className, size = "md", showTagline = false }: LogoProps) {
-  const s = sizes[size];
+export function Logo({ className, size = "md", showTagline = false, tone = "auto" }: LogoProps) {
+  const height = sizes[size];
+  const width = Math.round(height * LOGO_ASPECT);
+  const style = { height, width };
 
   return (
     <div className={cn("inline-flex flex-col", className)}>
-      <div className={cn("inline-flex items-end", s.gap)}>
-        <span
-          className={cn(
-            "font-display font-bold uppercase tracking-tight text-fg",
-            s.text
-          )}
-        >
-          Ryze
-        </span>
-        <FoldArrow className={cn(s.arrow, "mb-0.5")} />
-      </div>
+      {tone === "dark-bg" ? (
+        <Image
+          src="/brand/ryze-logo-light.png"
+          alt="Ryze"
+          width={width}
+          height={height}
+          priority
+          className="object-contain"
+          style={style}
+        />
+      ) : (
+        <>
+          <Image
+            src="/brand/ryze-logo.png"
+            alt="Ryze"
+            width={width}
+            height={height}
+            priority
+            className="object-contain dark:hidden"
+            style={style}
+          />
+          <Image
+            src="/brand/ryze-logo-light.png"
+            alt="Ryze"
+            width={width}
+            height={height}
+            priority
+            className="hidden object-contain dark:block"
+            style={style}
+          />
+        </>
+      )}
       {showTagline && (
-        <span className="text-caption uppercase tracking-wide text-fg-muted">
+        <span className="mt-1 text-caption uppercase tracking-wide text-fg-muted">
           Consultoria em Recursos Humanos
         </span>
       )}

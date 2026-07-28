@@ -18,12 +18,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function TermosPage() {
   return (
     <div className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
-      <div className="rounded-lg border border-error/40 bg-error/10 p-4 text-body-sm text-error">
-        ⚠️ RASCUNHO — revisar com advogado antes do lançamento público. Gerado como ponto de
-        partida, não é aconselhamento jurídico.
-      </div>
-
-      <h1 className="mt-8 font-display text-display-md font-semibold text-fg">Termos de Uso</h1>
+      <h1 className="font-display text-display-md font-semibold text-fg">Termos de Uso</h1>
       <p className="mt-2 text-body-sm text-fg-muted">Última atualização: 18 de julho de 2026.</p>
 
       <Section title="1. Aceitação dos termos">

@@ -48,17 +48,28 @@ export async function signUp(
   }
 
   let userId: string | undefined;
+  const baseUrl = await getBaseUrl();
 
   try {
     const supabase = await getSupabaseServerClient();
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name, plan: planSlug } },
+      options: {
+        data: { full_name: name, plan: planSlug },
+        // Sem isso, o link do e-mail de confirmação cai no "Site URL"
+        // configurado no Supabase (a home) em vez de levar direto pro
+        // login — precisa também estar na allow-list de "Redirect URLs"
+        // em Authentication → URL Configuration no painel do Supabase.
+        emailRedirectTo: `${baseUrl}/login`,
+      },
     });
     if (error) {
-      // Com confirmação de e-mail desligada (caso deste projeto), e-mail
-      // duplicado vem como erro explícito.
+      // Com confirmação de e-mail desligada, e-mail duplicado vem como erro
+      // explícito. (Confirmado em 2026-07-28 que a confirmação está LIGADA
+      // neste projeto — ao contrário do que este comentário dizia antes —
+      // então na prática é o branch de `identities: []` abaixo que trata
+      // isso. Mantido por robustez a ambos os modos.)
       if (/already registered|already exists|user_already_exists/i.test(error.message)) {
         return { status: "email_exists", email, message: "Esse e-mail já tem uma conta na Ryze." };
       }
@@ -109,7 +120,6 @@ export async function signUp(
 
     try {
       const stripe = getStripeClient();
-      const baseUrl = await getBaseUrl();
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
         line_items: [{ price: priceId, quantity: 1 }],
