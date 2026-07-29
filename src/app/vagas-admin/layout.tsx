@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Users } from "lucide-react";
+import { ArrowLeft, Users, FileEdit } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/auth";
 import { FoldArrow } from "@/components/brand/fold-arrow";
 
@@ -46,6 +46,12 @@ export default async function VagasAdminLayout({ children }: { children: React.R
             </div>
           </div>
           <div className="flex items-center gap-5">
+            <Link
+              href="/vagas-admin/aberturas"
+              className="inline-flex items-center gap-1.5 text-body-sm font-medium text-fg-muted transition-ryze hover:text-fg"
+            >
+              <FileEdit className="h-3.5 w-3.5" /> Aberturas de Vaga
+            </Link>
             <Link
               href="/vagas-admin/talentos"
               className="inline-flex items-center gap-1.5 text-body-sm font-medium text-fg-muted transition-ryze hover:text-fg"

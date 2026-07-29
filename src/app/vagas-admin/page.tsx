@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { CreateJobForm } from "./create-form";
 import { JobStatusSelect } from "./job-status-select";
 import type { JobStatus } from "./actions";
+import type { JobRequestRow } from "@/lib/job-request-options";
+import { buildDescriptionDraft, buildRequirementsDraft } from "@/lib/ats/format-job-request";
 
 export const metadata = { title: "Vagas — Ryze" };
 
@@ -14,12 +16,38 @@ const STATUS_BADGE: Record<JobStatus, "accent-soft" | "neutral" | "outline"> = {
   encerrada: "outline",
 };
 
-export default async function VagasAdminPage() {
+export default async function VagasAdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ fromRequest?: string }>;
+}) {
+  const { fromRequest } = await searchParams;
   const supabase = getSupabaseAdminClient();
   const { data: postings } = await supabase
     .from("ats_job_postings")
     .select("id, title, status, created_at, ats_applications(count)")
     .order("created_at", { ascending: false });
+
+  // Pré-preenche o formulário de criação a partir de uma solicitação de
+  // abertura de vaga já revisada (ver src/app/vagas-admin/aberturas) — só
+  // se ela ainda não foi convertida (evita prefill de algo já usado).
+  let prefill: { title: string; description: string; requirements: string } | undefined;
+  if (fromRequest) {
+    const { data: request } = await supabase
+      .from("ats_job_requests")
+      .select("*")
+      .eq("id", fromRequest)
+      .eq("status", "em_revisao")
+      .maybeSingle<JobRequestRow>();
+
+    if (request) {
+      prefill = {
+        title: request.job_title ?? "",
+        description: buildDescriptionDraft(request),
+        requirements: buildRequirementsDraft(request),
+      };
+    }
+  }
 
   return (
     <div>
@@ -28,7 +56,7 @@ export default async function VagasAdminPage() {
       <div className="mt-6 rounded-xl border border-border bg-bg-surface p-6">
         <h2 className="font-display text-heading-md font-semibold text-fg">Nova vaga</h2>
         <div className="mt-4">
-          <CreateJobForm />
+          <CreateJobForm initialValues={prefill} sourceRequestId={prefill ? fromRequest : undefined} />
         </div>
       </div>
 

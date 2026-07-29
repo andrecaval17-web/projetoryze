@@ -10,7 +10,13 @@ import { Button } from "@/components/ui/button";
 
 const initialState: CreateJobPostingState = { status: "idle" };
 
-export function CreateJobForm() {
+interface CreateJobFormProps {
+  initialValues?: { title: string; description: string; requirements: string };
+  /** Presente quando a vaga nasce de uma solicitação de abertura revisada — marca a solicitação como convertida e a vaga nasce "pausada" (ver actions.ts). */
+  sourceRequestId?: string;
+}
+
+export function CreateJobForm({ initialValues, sourceRequestId }: CreateJobFormProps) {
   const [state, formAction, isPending] = useActionState(createJobPosting, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const wasPending = useRef(false);
@@ -47,14 +53,35 @@ export function CreateJobForm() {
 
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-5">
+      {sourceRequestId && <input type="hidden" name="source_request_id" value={sourceRequestId} />}
+      {initialValues && (
+        <p className="rounded-md bg-accent-500/10 px-4 py-3 text-body-sm text-accent-600 dark:text-accent-400">
+          Pré-preenchido a partir de uma solicitação de abertura de vaga — revise o texto antes de criar. A vaga
+          nasce pausada, publique quando estiver pronta.
+        </p>
+      )}
       <FormField label="Título da vaga" htmlFor="title" required>
-        <Input id="title" name="title" placeholder="Ex: Analista de RH Pleno" required />
+        <Input id="title" name="title" placeholder="Ex: Analista de RH Pleno" defaultValue={initialValues?.title} required />
       </FormField>
       <FormField label="Descrição" htmlFor="description" required>
-        <Textarea id="description" name="description" rows={4} placeholder="Sobre a vaga, responsabilidades, contexto do time..." required />
+        <Textarea
+          id="description"
+          name="description"
+          rows={4}
+          placeholder="Sobre a vaga, responsabilidades, contexto do time..."
+          defaultValue={initialValues?.description}
+          required
+        />
       </FormField>
       <FormField label="Requisitos" htmlFor="requirements" required helperText="Um por linha ou em texto livre — usado também pra calcular a aderência do currículo.">
-        <Textarea id="requirements" name="requirements" rows={4} placeholder="Ex: Experiência com recrutamento e seleção, Excel avançado, inglês intermediário..." required />
+        <Textarea
+          id="requirements"
+          name="requirements"
+          rows={4}
+          placeholder="Ex: Experiência com recrutamento e seleção, Excel avançado, inglês intermediário..."
+          defaultValue={initialValues?.requirements}
+          required
+        />
       </FormField>
 
       <div className="rounded-xl border-2 border-dashed border-accent-500/40 bg-accent-500/5 p-5">

@@ -45,6 +45,11 @@ export async function createJobPosting(
   const title = String(formData.get("title") || "").trim();
   const description = String(formData.get("description") || "").trim();
   const requirements = String(formData.get("requirements") || "").trim();
+  // Presente quando a vaga vem de uma solicitação de abertura revisada
+  // (ver src/app/vagas-admin/aberturas) — a vaga nasce pausada em vez de
+  // aberta (pedido do cliente em 2026-07-29: texto montado a partir de
+  // campos estruturados precisa de uma revisão humana antes de publicar).
+  const sourceRequestId = String(formData.get("source_request_id") || "").trim() || null;
   // Perguntas customizadas: só na criação da vaga (sem edição posterior por
   // enquanto — decisão explícita da proposta aprovada em 2026-07-24).
   const questions = formData
@@ -67,7 +72,14 @@ export async function createJobPosting(
     const slug = attempt === 0 ? base : `${base}-${randomSuffix()}`;
     const { data, error } = await supabase
       .from("ats_job_postings")
-      .insert({ title, description, requirements, slug, created_by: session.userId })
+      .insert({
+        title,
+        description,
+        requirements,
+        slug,
+        status: sourceRequestId ? "pausada" : "aberta",
+        created_by: session.userId,
+      })
       .select("id")
       .single();
 
@@ -83,6 +95,20 @@ export async function createJobPosting(
 
   if (!jobId) {
     return { status: "error", message: "Não foi possível gerar um link único para a vaga. Tente novamente." };
+  }
+
+  if (sourceRequestId) {
+    const { error: convertError } = await supabase
+      .from("ats_job_requests")
+      .update({ status: "convertida", converted_job_posting_id: jobId, updated_at: new Date().toISOString() })
+      .eq("id", sourceRequestId);
+    if (convertError) {
+      // A vaga já foi criada — não desfaz por causa disso, só loga pro
+      // time investigar (a solicitação ficaria com status desatualizado).
+      console.error("[admin] falha ao marcar solicitação como convertida", convertError);
+    }
+    revalidatePath("/vagas-admin/aberturas");
+    revalidatePath(`/vagas-admin/aberturas/${sourceRequestId}`);
   }
 
   if (questions.length > 0) {
