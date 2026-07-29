@@ -159,6 +159,15 @@ export default async function AberturaDetailPage({ params }: { params: Promise<{
               <Field label="Diferencial desejado" value={request.candidate_differential} />
             </dl>
           </section>
+
+          <section className="rounded-xl border border-border bg-bg-surface p-6">
+            <h2 className="font-display text-heading-sm font-semibold text-fg">Termo de Compromisso</h2>
+            <p className="mt-2 text-body-sm text-fg-muted">
+              {request.terms_accepted_at
+                ? `Aceito em ${new Date(request.terms_accepted_at).toLocaleString("pt-BR")}.`
+                : "Não há registro de aceite (solicitação enviada antes desse controle existir)."}
+            </p>
+          </section>
         </div>
       )}
     </div>

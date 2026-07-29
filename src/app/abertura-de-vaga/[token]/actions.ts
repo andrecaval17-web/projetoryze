@@ -62,6 +62,7 @@ export async function submitJobOpeningRequest(
   const behavioralTraits = formData.getAll("behavioral_traits").map(String);
   const particularities = get("particularities");
   const candidateDifferential = get("candidate_differential");
+  const termsAccepted = formData.get("terms_accepted") === "on";
 
   if (
     !companyName ||
@@ -92,6 +93,13 @@ export async function submitJobOpeningRequest(
   if (requiresExperience && !EXPERIENCE_TIME_VALUES.includes(experienceTime as (typeof EXPERIENCE_TIME_VALUES)[number])) {
     return { status: "error", message: "Informe o tempo de experiência exigido." };
   }
+  // O botão já fica desabilitado no client até marcar o checkbox, mas o
+  // servidor nunca confia só na validação do client (mesmo padrão do
+  // cadastro/candidatura pública) — sem isso, terms_accepted_at nunca
+  // poderia ser considerado um registro confiável do aceite.
+  if (!termsAccepted) {
+    return { status: "error", message: "É necessário aceitar o Termo de Compromisso para enviar." };
+  }
 
   const { error } = await supabase
     .from("ats_job_requests")
@@ -119,6 +127,7 @@ export async function submitJobOpeningRequest(
       candidate_differential: candidateDifferential,
       status: "em_revisao",
       submitted_at: new Date().toISOString(),
+      terms_accepted_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
     .eq("token", token);

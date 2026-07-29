@@ -101,4 +101,5 @@ export interface JobRequestRow {
   converted_job_posting_id: string | null;
   created_at: string;
   submitted_at: string | null;
+  terms_accepted_at: string | null;
 }
