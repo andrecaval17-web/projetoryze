@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, Search, Users2, LineChart, GraduationCap, BrainCircuit } from "lucide-react";
+import { ArrowUpRight, Search, Users2, LineChart, GraduationCap, Film } from "lucide-react";
 import { DarkHero } from "@/components/sections/dark-hero";
 import { ResultsBand } from "@/components/sections/results-band";
 import { CtaBand } from "@/components/sections/cta-band";
@@ -23,8 +23,8 @@ const consultoriaItems = [
 ];
 
 const produtosItems = [
-  { icon: BrainCircuit, label: "Recrutamento com IA — hunting e análise automática" },
-  { icon: GraduationCap, label: "Educação Corporativa — trilhas personalizadas por IA" },
+  { icon: GraduationCap, label: "Ryze Academy — educação corporativa com IA 24/7" },
+  { icon: Film, label: "Cultura & Engajamento — escuta contínua e mentor de IA" },
 ];
 
 // Conteúdo idêntico ao antigo Home (src/app/page.tsx) — só movido pra cá e
