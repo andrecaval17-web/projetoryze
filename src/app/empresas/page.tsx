@@ -48,9 +48,9 @@ export default function EmpresasPage() {
           </Button>
         }
         stats={[
-          { value: "10x", label: "mais rápido que a triagem manual" },
-          { value: "+40", label: "critérios avaliados por candidato" },
-          { value: "24/7", label: "IA analisando candidatos" },
+          { value: "87%", label: "do treinamento se perde em 30 dias sem reforço" },
+          { value: "+56%", label: "de turnover no Brasil — o maior do mundo" },
+          { value: "+12pp", label: "de engajamento em média, por líder Ryze" },
         ]}
       />
 
