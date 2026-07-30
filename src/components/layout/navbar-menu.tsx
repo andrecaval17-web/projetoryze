@@ -31,6 +31,15 @@ function AuthActions({ email, variant, onNavigate }: {
           <UserRound className="h-4 w-4" />
           {email}
         </span>
+        {/* Mesmo canto do candidato que "Sua área" — não faz parte do menu
+            institucional (ver navLinks em navbar.tsx). */}
+        <Link
+          href="/vagas"
+          onClick={onNavigate}
+          className="text-body-sm font-medium text-fg-muted transition-ryze hover:text-fg"
+        >
+          Vagas abertas
+        </Link>
         <Button asChild variant="ghost" size={size} className="border-border">
           <Link href="/para-candidatos/painel" onClick={onNavigate}>
             Sua área
@@ -56,6 +65,15 @@ function AuthActions({ email, variant, onNavigate }: {
         className="text-body-sm font-medium text-fg-muted transition-ryze hover:text-fg"
       >
         Entrar
+      </Link>
+      {/* Canto do candidato — junto de "Sou candidato", fora do menu
+          institucional (navLinks em navbar.tsx é só B2B). */}
+      <Link
+        href="/vagas"
+        onClick={onNavigate}
+        className="text-body-sm font-medium text-fg-muted transition-ryze hover:text-fg"
+      >
+        Vagas abertas
       </Link>
       {/* Candidate path, kept visually distinct from the B2B CTA so job
           seekers always have a corner to go to. */}
