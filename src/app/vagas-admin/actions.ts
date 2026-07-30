@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin/auth";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
+import { maybeSendRejectionEmail } from "@/lib/ats/rejection-email";
 
 const JOB_STATUSES = ["aberta", "pausada", "encerrada"] as const;
 export type JobStatus = (typeof JOB_STATUSES)[number];
@@ -174,6 +175,10 @@ export async function updateApplicationStatus(
   if (error) {
     console.error("[admin] falha ao atualizar status da candidatura", error);
     throw new Error("Não foi possível atualizar o status.");
+  }
+
+  if (status === "rejeitado") {
+    await maybeSendRejectionEmail(supabase, applicationId, jobId);
   }
 
   revalidatePath(`/vagas-admin/${jobId}`);
