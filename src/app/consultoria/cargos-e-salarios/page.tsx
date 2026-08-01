@@ -1,32 +1,34 @@
 import type { Metadata } from "next";
 import { PiggyBank, Magnet, UserMinus, Scale, BarChart3, FileSearch } from "lucide-react";
 import { ServicePageTemplate } from "@/components/sections/service-page-template";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Remuneração Estratégica — Ryze Consultoria",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Cargos e Salários e Remuneração Estratégica — Ryze Consultoria",
   description:
-    "Muito além de cargos e salários: estudos de teses de remuneração para reduzir despesas, atrair os melhores e conter o turnover passivo.",
-};
+    "Cargos e salários com metodologia de remuneração estratégica: estudos que reduzem despesas, atraem os melhores profissionais e contêm o turnover passivo.",
+  path: "/consultoria/cargos-e-salarios",
+});
 
 export default function RemuneracaoEstrategicaPage() {
   return (
     <ServicePageTemplate
-      eyebrow="Remuneração Estratégica"
-      title="Remuneração que reduz custo e retém talento"
-      subtitle="Vai muito além de cargos e salários: estudamos teses de remuneração para reduzir despesas, atrair os melhores profissionais e conter o turnover passivo — o colaborador que sai por conta própria."
+      eyebrow="Cargos e Salários · Remuneração Estratégica"
+      title="Cargos e salários e remuneração estratégica: menos custo, mais retenção"
+      subtitle="Estruturamos cargos e salários com uma lente de remuneração estratégica: reduzindo despesas, atraindo os melhores profissionais e contendo o turnover passivo — o colaborador que sai por conta própria."
       highlights={[
         { value: "menos despesa", label: "estrutura desenhada para eficiência de custo" },
         { value: "mais atração", label: "pacotes competitivos para os melhores talentos" },
         { value: "menos turnover", label: "retenção do time que você não quer perder" },
       ]}
-      painTitle="Sem estratégia, remuneração vira só despesa"
+      painTitle="Cargos e salários sem estratégia viram só despesa"
       painPoints={[
         "Negociações caso a caso que geram desigualdade interna e insatisfação.",
         "Folha pesada, mas sem clareza se o dinheiro está indo para onde retém e atrai.",
         "Bons profissionais pedindo demissão por propostas melhores — o turnover passivo que dói mais.",
         "Faixas salariais desatualizadas em relação ao mercado, sem plano de carreira claro.",
       ]}
-      differentiatorsTitle="O que entregamos além de cargos e salários"
+      differentiatorsTitle="Como estruturamos cargos e salários com remuneração estratégica"
       differentiators={[
         {
           icon: FileSearch,
@@ -65,7 +67,7 @@ export default function RemuneracaoEstrategicaPage() {
             "Faixas e níveis que mostram ao colaborador para onde ele pode crescer — e o que precisa fazer para chegar lá.",
         },
       ]}
-      methodologyTitle="Como estruturamos a remuneração"
+      methodologyTitle="Como estruturamos cargos e salários e remuneração"
       methodologySteps={[
         { label: "Diagnóstico", description: "Folha, cargos e cenário atual" },
         { label: "Benchmarking", description: "Pesquisa salarial de mercado" },
