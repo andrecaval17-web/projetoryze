@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { Award, Cpu, Timer, Target, Layers, ShieldCheck } from "lucide-react";
 import { ServicePageTemplate } from "@/components/sections/service-page-template";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Recrutamento e Seleção — Ryze Consultoria",
   description:
     "Recrutadores com mais de 10 anos de experiência e tecnologia no processo: candidatos finalistas em até 15 dias, de vagas operacionais a estratégicas.",
-};
+  path: "/consultoria/recrutamento-e-selecao",
+});
 
 export default function RecrutamentoESelecaoPage() {
   return (

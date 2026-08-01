@@ -8,12 +8,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FoldCorner } from "@/components/brand/fold-corner";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Para empresas — Ryze",
   description:
     "Consultoria estratégica e produtos de inteligência artificial que aceleram recrutamento, cultura e desenvolvimento do seu RH.",
-};
+  path: "/empresas",
+});
 
 const consultoriaItems = [
   { icon: Search, label: "Recrutamento e Seleção" },

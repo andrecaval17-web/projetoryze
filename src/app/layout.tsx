@@ -4,6 +4,7 @@ import { Space_Grotesk, Inter } from "next/font/google";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { WhatsappButton } from "@/components/layout/whatsapp-button";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -19,6 +20,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: "Ryze — Consultoria em Recursos Humanos",
   description:
     "Ryze une consultoria de RH e inteligência artificial para acelerar recrutamento, cultura organizacional e recolocação de carreira.",

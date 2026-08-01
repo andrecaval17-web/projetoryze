@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { Target, Route, BarChart3, Users, Sparkles, Repeat } from "lucide-react";
 import { ServicePageTemplate } from "@/components/sections/service-page-template";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Treinamento e Desenvolvimento — Ryze Consultoria",
   description:
     "Programas de capacitação desenhados a partir de gaps reais e medidos por impacto no negócio — desenvolvimento que retém e performa.",
-};
+  path: "/consultoria/treinamento-e-desenvolvimento",
+});
 
 export default function TreinamentoEDesenvolvimentoPage() {
   return (

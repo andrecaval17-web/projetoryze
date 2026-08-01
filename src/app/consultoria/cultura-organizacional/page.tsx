@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { Compass, Megaphone, Repeat, PenTool, Radar, Users2 } from "lucide-react";
 import { ServicePageTemplate } from "@/components/sections/service-page-template";
 import { CultureHero } from "@/components/sections/culture-hero";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Cultura Organizacional — Ryze Consultoria",
   description:
     "A maioria das empresas mede clima, não cultura. Desenhamos, comunicamos e medimos a cultura — a forma como as coisas são feitas no dia a dia.",
-};
+  path: "/consultoria/cultura-organizacional",
+});
 
 export default function CulturaOrganizacionalPage() {
   return (

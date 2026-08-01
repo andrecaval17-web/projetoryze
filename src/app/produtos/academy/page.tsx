@@ -9,12 +9,14 @@ import { RoiCalculator } from "@/components/sections/roi-calculator";
 import { DualCtaBand } from "@/components/sections/dual-cta-band";
 import { FoldStepIndicator } from "@/components/brand/fold-step-indicator";
 import { Button } from "@/components/ui/button";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Ryze Academy — Educação Corporativa com IA — Ryze",
   description:
     "A universidade corporativa que responde: trilhas com vídeo, documento e uma IA treinada no conteúdo real da sua empresa, respondendo dúvidas 24/7.",
-};
+  path: "/produtos/academy",
+});
 
 const CONTATO_ESPECIALISTA = "/contato?produto=academy&intencao=especialista";
 const CONTATO_DEMONSTRACAO = "/contato?produto=academy&intencao=demonstracao";

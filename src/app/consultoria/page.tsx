@@ -6,12 +6,14 @@ import { ResultsBand } from "@/components/sections/results-band";
 import { CtaBand } from "@/components/sections/cta-band";
 import { ServiceCard } from "@/components/ui/service-card";
 import { Button } from "@/components/ui/button";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Consultoria em Recursos Humanos — Ryze",
   description:
     "Recrutamento e seleção, cultura organizacional, cargos e salários e treinamento e desenvolvimento — consultoria de RH com metodologia e resultado.",
-};
+  path: "/consultoria",
+});
 
 const services = [
   {

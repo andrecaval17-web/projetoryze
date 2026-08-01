@@ -6,12 +6,14 @@ import { AiDemoPanel } from "@/components/sections/ai-demo-panel";
 import { ServiceCard } from "@/components/ui/service-card";
 import { CtaBand } from "@/components/sections/cta-band";
 import { Button } from "@/components/ui/button";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Produtos Ryze — Ryze Academy e Ryze HR Cultura",
   description:
     "Dois produtos prontos: educação corporativa com IA que responde dúvidas 24/7, e gestão de cultura e engajamento com escuta contínua.",
-};
+  path: "/produtos",
+});
 
 /** One line of the hub's "IA em ação" demo — a real, sourced highlight per product, not a candidate-matching mock. */
 function ProductActivityRow({
