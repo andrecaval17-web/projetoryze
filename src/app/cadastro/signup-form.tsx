@@ -7,17 +7,21 @@ import { signUp, type SignupState } from "./actions";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import type { BillingInterval } from "@/lib/plans";
 
 const initialState: SignupState = { status: "idle" };
 
 interface SignupFormProps {
   plan: string;
+  /** Intervalo escolhido no toggle da página pública de planos — repassado
+   * como campo oculto pro checkout sair no Price ID certo. */
+  interval?: BillingInterval;
   prefillEmail?: string;
   /** Chamado quando a pessoa opta por ir pra aba de login (ex: e-mail já cadastrado). */
   onOfferLogin?: (email: string) => void;
 }
 
-export function SignupForm({ plan, prefillEmail, onOfferLogin }: SignupFormProps) {
+export function SignupForm({ plan, interval = "month", prefillEmail, onOfferLogin }: SignupFormProps) {
   // signUp() sempre faz redirect() em caso de sucesso (Stripe Checkout para
   // planos pagos, /para-candidatos/painel para o Grátis) — o estado aqui só
   // é usado para mostrar erro/e-mail duplicado; um "success" nunca chega a
@@ -40,6 +44,7 @@ export function SignupForm({ plan, prefillEmail, onOfferLogin }: SignupFormProps
   return (
     <form action={formAction} className="flex flex-col gap-5">
       <input type="hidden" name="plan" value={plan} />
+      <input type="hidden" name="interval" value={interval} />
       <FormField label="Nome completo" htmlFor="name" required>
         <Input id="name" name="name" placeholder="Seu nome" required />
       </FormField>

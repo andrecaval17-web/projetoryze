@@ -6,7 +6,7 @@ import { Logo } from "@/components/brand/logo";
 import { Badge } from "@/components/ui/badge";
 import { LoginForm } from "@/app/login/login-form";
 import { SignupForm } from "@/app/cadastro/signup-form";
-import type { CandidatePlan } from "@/lib/plans";
+import type { CandidatePlan, BillingInterval } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
 type Tab = "entrar" | "criar-conta";
@@ -14,6 +14,10 @@ type Tab = "entrar" | "criar-conta";
 interface AuthTabsProps {
   initialTab: Tab;
   plan: CandidatePlan;
+  /** Escolhido na página pública de planos (toggle mensal/anual) — carregado
+   * até o cadastro pra fazer o checkout no intervalo certo. Default mensal
+   * pras telas que não passam esse parâmetro (ex: /login). */
+  interval?: BillingInterval;
 }
 
 const TAB_COPY: Record<Tab, { title: string; subtitle: string }> = {
@@ -21,8 +25,11 @@ const TAB_COPY: Record<Tab, { title: string; subtitle: string }> = {
   "criar-conta": { title: "Criar sua conta", subtitle: "Leva menos de um minuto." },
 };
 
-export function AuthTabs({ initialTab, plan }: AuthTabsProps) {
+export function AuthTabs({ initialTab, plan, interval = "month" }: AuthTabsProps) {
   const [tab, setTab] = useState<Tab>(initialTab);
+  const isAnnual = interval === "year" && plan.annualPriceCents != null;
+  const displayPrice = isAnnual ? plan.annualPrice : plan.price;
+  const displayPeriod = isAnnual ? "/ano" : plan.period;
   // Preenchido quando a pessoa troca de aba a partir de um erro (e-mail já
   // cadastrado no cadastro, ou "não tem conta" no login) — carrega o e-mail
   // já digitado pra não fazer a pessoa redigitar.
@@ -46,7 +53,7 @@ export function AuthTabs({ initialTab, plan }: AuthTabsProps) {
             Plano selecionado:
             <Badge variant={plan.recommended ? "recommended" : "neutral"}>
               {plan.name}
-              {plan.period ? ` · ${plan.price}${plan.period}` : plan.priceCents === 0 ? " · grátis" : ""}
+              {plan.period ? ` · ${displayPrice}${displayPeriod}` : plan.priceCents === 0 ? " · grátis" : ""}
             </Badge>
           </p>
         ) : (
@@ -92,6 +99,7 @@ export function AuthTabs({ initialTab, plan }: AuthTabsProps) {
           <SignupForm
             key={`signup-${prefillEmail}`}
             plan={plan.slug}
+            interval={isAnnual ? "year" : "month"}
             prefillEmail={prefillEmail}
             onOfferLogin={(email) => switchTo("entrar", email)}
           />

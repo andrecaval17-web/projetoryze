@@ -10,10 +10,11 @@ export const metadata: Metadata = {
 export default async function CadastroPage({
   searchParams,
 }: {
-  searchParams: Promise<{ plano?: string }>;
+  searchParams: Promise<{ plano?: string; intervalo?: string }>;
 }) {
-  const { plano = "gratis" } = await searchParams;
+  const { plano = "gratis", intervalo } = await searchParams;
   const plan = getPlan(plano) ?? getPlan("gratis")!;
+  const interval = intervalo === "anual" ? "year" : "month";
 
-  return <AuthTabs initialTab="criar-conta" plan={plan} />;
+  return <AuthTabs initialTab="criar-conta" plan={plan} interval={interval} />;
 }

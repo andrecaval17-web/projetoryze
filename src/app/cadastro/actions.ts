@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getStripeClient } from "@/lib/stripe/server";
-import { getPlan } from "@/lib/plans";
+import { getPlan, getStripePriceEnv, type BillingInterval } from "@/lib/plans";
 import { createCadastroTalentPoolEntry } from "@/lib/talent-pool";
 
 export interface SignupState {
@@ -30,6 +30,8 @@ export async function signUp(
   const password = String(formData.get("password") || "");
   const planSlug = String(formData.get("plan") || "gratis");
   const acceptedTerms = formData.get("terms") === "on";
+  const intervalRaw = String(formData.get("interval") || "month");
+  const interval: BillingInterval = intervalRaw === "year" ? "year" : "month";
 
   if (!name || !email || password.length < 6) {
     return {
@@ -108,10 +110,11 @@ export async function signUp(
   let checkoutUrl: string | null = null;
 
   if (isPaid && plan?.stripePriceEnv) {
-    const priceId = process.env[plan.stripePriceEnv];
+    const priceEnv = getStripePriceEnv(plan, interval);
+    const priceId = priceEnv ? process.env[priceEnv] : undefined;
 
     if (!priceId) {
-      console.error(`Missing env var ${plan.stripePriceEnv} for plan ${planSlug}`);
+      console.error(`Missing env var ${priceEnv} for plan ${planSlug} (${interval})`);
       return {
         status: "error",
         message: "Conta criada, mas o pagamento não está disponível agora. Fale com a gente.",

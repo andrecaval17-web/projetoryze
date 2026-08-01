@@ -10,7 +10,9 @@ export const runtime = "nodejs";
 function planFromPriceId(priceId: string | null | undefined): "impulso" | "mentoria" | null {
   if (!priceId) return null;
   if (priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_IMPULSO) return "impulso";
+  if (priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_IMPULSO_ANUAL) return "impulso";
   if (priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_MENTORIA) return "mentoria";
+  if (priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_MENTORIA_ANUAL) return "mentoria";
   return null;
 }
 
@@ -35,6 +37,11 @@ async function upsertSubscription(subscription: Stripe.Subscription) {
   const customerId =
     typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
 
+  // O próprio Stripe já diz o intervalo de cobrança do Price em uso — mais
+  // confiável que tentar rededuzir a partir de qual env var bateu com o
+  // Price ID (planFromPriceId só precisa saber o PLANO, não o intervalo).
+  const billingInterval = item?.price?.recurring?.interval === "year" ? "year" : "month";
+
   const supabase = getSupabaseAdminClient();
   const { error } = await supabase.from("subscriptions").upsert(
     {
@@ -43,6 +50,7 @@ async function upsertSubscription(subscription: Stripe.Subscription) {
       status: subscription.status,
       stripe_customer_id: customerId,
       stripe_subscription_id: subscription.id,
+      billing_interval: billingInterval,
       current_period_end: item
         ? new Date(item.current_period_end * 1000).toISOString()
         : null,

@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getStripeClient } from "@/lib/stripe/server";
-import { getPlan } from "@/lib/plans";
+import { getPlan, getStripePriceEnv, type BillingInterval } from "@/lib/plans";
 
 async function getBaseUrl() {
   const h = await headers();
@@ -46,6 +46,8 @@ export async function upgradeToPlan(formData: FormData) {
   const planSlug = String(formData.get("plan") || "");
   const plan = getPlan(planSlug);
   const acceptedTerms = formData.get("acceptedTerms") === "on";
+  const intervalRaw = String(formData.get("interval") || "month");
+  const interval: BillingInterval = intervalRaw === "year" ? "year" : "month";
 
   if (!plan || !plan.stripePriceEnv) {
     redirect("/para-candidatos/painel/upgrade");
@@ -66,9 +68,10 @@ export async function upgradeToPlan(formData: FormData) {
     redirect("/login");
   }
 
-  const priceId = process.env[plan.stripePriceEnv];
+  const priceEnv = getStripePriceEnv(plan, interval);
+  const priceId = priceEnv ? process.env[priceEnv] : undefined;
   if (!priceId) {
-    console.error(`Missing env var ${plan.stripePriceEnv} for plan ${planSlug}`);
+    console.error(`Missing env var ${priceEnv} for plan ${planSlug} (${interval})`);
     redirect("/para-candidatos/painel/upgrade");
   }
 
