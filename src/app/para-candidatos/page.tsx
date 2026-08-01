@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FileText, MessageCircle, Sparkles, Check, X, UserCheck } from "lucide-react";
 import { FoldArrow } from "@/components/brand/fold-arrow";
-import { PricingCard } from "@/components/ui/pricing-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Faq } from "@/components/sections/faq";
 import { Testimonials } from "@/components/sections/testimonials";
+import { CandidatePricingSection } from "@/components/sections/candidate-pricing-section";
 import { candidatePlans } from "@/lib/plans";
 
 export const metadata: Metadata = {
@@ -249,24 +249,7 @@ export default function ParaCandidatosPage() {
           </p>
         </div>
 
-        <div className="mt-12 grid items-start gap-6 lg:grid-cols-3">
-          {candidatePlans.map((plan) => (
-            <PricingCard
-              key={plan.slug}
-              name={plan.name}
-              price={plan.price}
-              period={plan.period}
-              description={plan.tagline}
-              features={plan.features}
-              ctaLabel={plan.ctaLabel}
-              ctaHref={`/cadastro?plano=${plan.slug}`}
-              recommended={plan.recommended}
-              badgeLabel={plan.badgeLabel}
-              valueNote={plan.valueNote}
-              footnote={plan.footnote}
-            />
-          ))}
-        </div>
+        <CandidatePricingSection plans={candidatePlans} />
 
         {/* Nudge de conversão: o incremento para o Mentoria vale a pena */}
         <div className="mx-auto mt-10 max-w-2xl rounded-lg border border-accent-500/30 bg-accent-500/5 px-6 py-5 text-center">
