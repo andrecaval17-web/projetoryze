@@ -1,5 +1,7 @@
 export type CandidatePlanSlug = "gratis" | "impulso" | "mentoria";
 
+export type BillingInterval = "month" | "year";
+
 export interface CandidatePlan {
   slug: CandidatePlanSlug;
   name: string;
@@ -19,6 +21,14 @@ export interface CandidatePlan {
   footnote?: string;
   /** Name of the env var holding the Stripe Price ID (paid plans only). */
   stripePriceEnv?: string;
+  /** Display annual price, e.g. "R$ 191,04" — undefined for plans without an annual option (Grátis). */
+  annualPrice?: string;
+  /** Annual amount in cents — 20% off 12x the monthly price. */
+  annualPriceCents?: number;
+  /** Reframing shown under the annual price, e.g. "equivale a R$ 15,92/mês". */
+  annualMonthlyEquivalent?: string;
+  /** Name of the env var holding the annual Stripe Price ID. */
+  stripePriceAnnualEnv?: string;
 }
 
 /**
@@ -56,6 +66,10 @@ export const candidatePlans: CandidatePlan[] = [
     ],
     ctaLabel: "Assinar Impulso",
     stripePriceEnv: "NEXT_PUBLIC_STRIPE_PRICE_IMPULSO",
+    annualPrice: "R$ 191,04",
+    annualPriceCents: 19104,
+    annualMonthlyEquivalent: "equivale a R$ 15,92/mês",
+    stripePriceAnnualEnv: "NEXT_PUBLIC_STRIPE_PRICE_IMPULSO_ANUAL",
   },
   {
     slug: "mentoria",
@@ -76,9 +90,18 @@ export const candidatePlans: CandidatePlan[] = [
     valueNote: "menos de R$ 1,70 por dia",
     footnote: "Vagas de mentoria limitadas por mês.",
     stripePriceEnv: "NEXT_PUBLIC_STRIPE_PRICE_MENTORIA",
+    annualPrice: "R$ 479,04",
+    annualPriceCents: 47904,
+    annualMonthlyEquivalent: "equivale a R$ 39,92/mês",
+    stripePriceAnnualEnv: "NEXT_PUBLIC_STRIPE_PRICE_MENTORIA_ANUAL",
   },
 ];
 
 export function getPlan(slug: string): CandidatePlan | undefined {
   return candidatePlans.find((p) => p.slug === slug);
+}
+
+/** Env var name holding the Stripe Price ID for a plan at a given billing interval. */
+export function getStripePriceEnv(plan: CandidatePlan, interval: BillingInterval): string | undefined {
+  return interval === "year" ? plan.stripePriceAnnualEnv : plan.stripePriceEnv;
 }
