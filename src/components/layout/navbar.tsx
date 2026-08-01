@@ -1,16 +1,38 @@
 import Link from "next/link";
 import { headers } from "next/headers";
+import { ChevronDown } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { NavbarMenu } from "./navbar-menu";
 import { NavbarApp } from "./navbar-app";
+import type { NavLink } from "./nav-links";
 
 // "Para Candidatos" is intentionally NOT here — job seekers get the dedicated
 // "Sou candidato" corner button so the main nav stays B2B-focused.
-const navLinks = [
-  { label: "Consultoria", href: "/consultoria" },
-  { label: "Produtos", href: "/produtos" },
+// "Consultoria" e "Produtos" abrem um dropdown com as subpáginas (pedido do
+// cliente em 2026-08-01: ir direto na página final sem passar pelo hub) —
+// o link principal continua clicável, levando pro hub, pra quem prefere ver
+// o panorama primeiro.
+const navLinks: NavLink[] = [
+  {
+    label: "Consultoria",
+    href: "/consultoria",
+    items: [
+      { label: "Recrutamento e Seleção", href: "/consultoria/recrutamento-e-selecao" },
+      { label: "Cargos e Salários", href: "/consultoria/cargos-e-salarios" },
+      { label: "Treinamento e Desenvolvimento", href: "/consultoria/treinamento-e-desenvolvimento" },
+      { label: "Cultura Organizacional", href: "/consultoria/cultura-organizacional" },
+    ],
+  },
+  {
+    label: "Produtos",
+    href: "/produtos",
+    items: [
+      { label: "Ryze Academy", href: "/produtos/academy" },
+      { label: "Ryze HR Cultura", href: "/produtos/cultura" },
+    ],
+  },
   { label: "Sobre", href: "/sobre" },
 ];
 
@@ -94,15 +116,44 @@ export async function Navbar() {
           )}
           aria-label="Navegação principal"
         >
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-body-sm font-medium text-fg-muted transition-ryze hover:text-fg"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) =>
+            link.items ? (
+              // group-hover controla o dropdown só com CSS — o wrapper cobre
+              // continuamente o link + o padding-top do painel, sem "buraco"
+              // de mouse entre os dois (a causa mais comum de dropdown que
+              // fecha sozinho antes de chegar aos itens).
+              <div key={link.href} className="group relative">
+                <Link
+                  href={link.href}
+                  className="flex items-center gap-1 text-body-sm font-medium text-fg-muted transition-ryze hover:text-fg"
+                >
+                  {link.label}
+                  <ChevronDown className="h-3.5 w-3.5 transition-ryze group-hover:rotate-180" />
+                </Link>
+                <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-3 opacity-0 transition-ryze group-hover:visible group-hover:opacity-100">
+                  <div className="flex min-w-56 flex-col gap-1 rounded-lg border border-border bg-ink p-2 shadow-lg">
+                    {link.items.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="rounded-md px-3 py-2 text-body-sm text-fg-muted transition-ryze hover:bg-bg-surface hover:text-fg"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-body-sm font-medium text-fg-muted transition-ryze hover:text-fg"
+              >
+                {link.label}
+              </Link>
+            )
+          )}
         </nav>
 
         <NavbarMenu navLinks={navLinks} email={user?.email ?? null} muted={muted} />

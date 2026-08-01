@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X, UserRound } from "lucide-react";
+import { Menu, X, UserRound, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { signOut } from "@/app/login/actions";
 import { cn } from "@/lib/utils";
+import type { NavLink } from "./nav-links";
 
 interface NavbarMenuProps {
-  navLinks: { label: string; href: string }[];
+  navLinks: NavLink[];
   /** null = deslogado. Só o e-mail chega aqui, nunca a sessão inteira. */
   email: string | null;
   /** Tela do audience gate (/) — reduz o contraste dos links institucionais
@@ -91,6 +92,67 @@ function AuthActions({ email, variant, onNavigate }: {
   );
 }
 
+/**
+ * Sem hover no toque — o rótulo navega direto pro hub (Consultoria/Produtos),
+ * e a seta é um alvo de toque separado que só expande/recolhe as subpáginas.
+ * Evita o dilema "o toque abre ou navega?" que travaria um dos dois.
+ */
+function MobileNavItem({ link, onNavigate }: { link: NavLink; onNavigate: () => void }) {
+  const [expanded, setExpanded] = useState(false);
+
+  if (!link.items) {
+    return (
+      <li>
+        <Link
+          href={link.href}
+          onClick={onNavigate}
+          className="block rounded-md px-3 py-2.5 text-body-md font-medium text-fg transition-ryze hover:bg-bg-surface"
+        >
+          {link.label}
+        </Link>
+      </li>
+    );
+  }
+
+  return (
+    <li>
+      <div className="flex items-center">
+        <Link
+          href={link.href}
+          onClick={onNavigate}
+          className="flex-1 rounded-md px-3 py-2.5 text-body-md font-medium text-fg transition-ryze hover:bg-bg-surface"
+        >
+          {link.label}
+        </Link>
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+          aria-label={`${expanded ? "Fechar" : "Abrir"} submenu de ${link.label}`}
+          className="rounded-md p-2.5 text-fg-muted transition-ryze hover:bg-bg-surface hover:text-fg"
+        >
+          <ChevronDown className={cn("h-4 w-4 transition-ryze", expanded && "rotate-180")} />
+        </button>
+      </div>
+      {expanded && (
+        <ul className="ml-3 flex flex-col gap-0.5 border-l border-border py-1 pl-3">
+          {link.items.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                onClick={onNavigate}
+                className="block rounded-md px-3 py-2 text-body-sm text-fg-muted transition-ryze hover:bg-bg-surface hover:text-fg"
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
 export function NavbarMenu({ navLinks, email, muted = false }: NavbarMenuProps) {
   const [open, setOpen] = useState(false);
 
@@ -128,15 +190,7 @@ export function NavbarMenu({ navLinks, email, muted = false }: NavbarMenuProps) 
         >
           <ul className="flex flex-col gap-1">
             {navLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-md px-3 py-2.5 text-body-md font-medium text-fg transition-ryze hover:bg-bg-surface"
-                >
-                  {link.label}
-                </Link>
-              </li>
+              <MobileNavItem key={link.href} link={link} onNavigate={() => setOpen(false)} />
             ))}
           </ul>
           {email && (
