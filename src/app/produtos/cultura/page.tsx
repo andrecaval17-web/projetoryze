@@ -10,12 +10,14 @@ import { CaseResults } from "@/components/sections/case-results";
 import { DualCtaBand } from "@/components/sections/dual-cta-band";
 import { FoldStepIndicator } from "@/components/brand/fold-step-indicator";
 import { Button } from "@/components/ui/button";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Ryze HR Cultura — Gestão de Pessoas em Tempo Real — Ryze",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Pesquisa de Clima Organizacional e eNPS — Ryze HR Cultura",
   description:
-    "Escuta contínua no WhatsApp, diagnóstico de causa-raiz e um mentor com IA ao lado de cada líder — engajamento e cultura medidos ciclo a ciclo, com a tecnologia Flecha.",
-};
+    "Pesquisa de clima organizacional, eNPS e engajamento de colaboradores: escuta contínua no WhatsApp, diagnóstico de causa-raiz e um mentor de IA para cada líder.",
+  path: "/produtos/cultura",
+});
 
 const CONTATO_ESPECIALISTA = "/contato?produto=cultura&intencao=especialista";
 const CONTATO_DEMONSTRACAO = "/contato?produto=cultura&intencao=demonstracao";
@@ -24,13 +26,13 @@ export default function CulturaPage() {
   return (
     <>
       <DarkHero
-        eyebrow="Ryze HR · Gestão de pessoas em tempo real"
+        eyebrow="Ryze HR · Pesquisa de clima e engajamento com IA"
         title={
           <>
-            O problema de pessoas virou um problema <span className="text-gradient-ryze">de caixa</span>.
+            O problema de clima e engajamento virou um problema <span className="text-gradient-ryze">de caixa</span>.
           </>
         }
-        subtitle="O Brasil lidera o ranking mundial de rotatividade, o engajamento global está no menor nível desde 2020 — e cada saída evitável custa até dois salários anuais. A pergunta não é mais se a sua empresa pode investir em gestão de pessoas. É quanto ela está perdendo por não investir direito."
+        subtitle="O Brasil lidera o ranking mundial de rotatividade, o engajamento global está no menor nível desde 2020 — e cada saída evitável custa até dois salários anuais. A pergunta não é mais se a sua empresa pode investir em pesquisa de clima organizacional e engajamento. É quanto ela está perdendo por não investir direito."
         primaryCta={
           <Button asChild size="lg">
             <Link href={CONTATO_ESPECIALISTA}>Falar com um especialista</Link>
@@ -44,7 +46,7 @@ export default function CulturaPage() {
       />
 
       <ResultsBand
-        title="O momento do RH brasileiro"
+        title="O momento do clima organizacional no Brasil"
         stats={[
           {
             value: "+56%",
@@ -71,7 +73,7 @@ export default function CulturaPage() {
           {
             title: "Pesquisa de clima",
             description:
-              "Uma foto tirada 1 ou 2 vezes por ano. Mostra a média, não a causa — e quando o relatório fica pronto, o momento já passou. Quem responde e não vê nada mudar confia menos: a foto sem ação piora o clima.",
+              "Uma foto tirada 1 ou 2 vezes por ano, muitas vezes resumida a um único número de eNPS. Mostra a média, não a causa — e quando o relatório fica pronto, o momento já passou. Quem responde e não vê nada mudar confia menos: a foto sem ação piora o clima.",
           },
           {
             title: "Treinamento de liderança",
@@ -96,13 +98,32 @@ export default function CulturaPage() {
         }
       />
 
-      <p className="mx-auto max-w-2xl px-5 py-14 text-center font-display text-heading-sm italic text-fg lg:px-8">
-        &ldquo;Empresas coletam dados, geram relatórios, apresentam gráficos — mas não constroem planos. Se o
-        colaborador percebe que falou e nada mudou, o clima piora.&rdquo;
-        <span className="mt-3 block text-body-sm not-italic text-fg-muted">
-          — consenso das principais análises de mercado sobre pesquisa de clima
-        </span>
-      </p>
+      <RoiCalculator
+        eyebrow="Faça a conta"
+        title="Quanto custa não fazer nada?"
+        description={
+          <>
+            <p>
+              Pegue uma empresa de 200 pessoas com salário médio de R$ 4.500 e turnover de 30% ao ano — abaixo da
+              média de vários setores no Brasil. São 60 substituições por ano.
+            </p>
+            <p>
+              Usando o piso conservador do custo de reposição (50% do salário anual, segundo a SHRM), a conta ao
+              lado se paga sozinha: cada punhado de saídas evitadas já cobre o investimento em escuta contínua —
+              sem contar produtividade, absenteísmo e falhas operacionais.
+            </p>
+          </>
+        }
+        punchline="Retenção deixou de ser tema de RH. É proteção de margem."
+        rows={[
+          { label: "Colaboradores", value: "200" },
+          { label: "Salário médio mensal", value: "R$ 4.500" },
+          { label: "Turnover anual (30%)", value: "60 saídas" },
+          { label: "Custo por substituição (piso de 50%)", value: "R$ 27.000" },
+        ]}
+        totalRow={{ label: "Custo anual do turnover", value: "≈ R$ 1,6 milhão" }}
+        disclaimer="Estimativa simplificada, baseada em premissas conservadoras — não é benchmark de mercado."
+      />
 
       <ComparisonColumns
         eyebrow="A virada"
@@ -150,7 +171,7 @@ export default function CulturaPage() {
                 currentStep={4}
                 steps={[
                   { label: "Escuta", description: "Conversas 1:1 e anônimas com cada colaborador, no WhatsApp" },
-                  { label: "Diagnóstico", description: "A IA cruza padrões e aponta a causa-raiz" },
+                  { label: "Diagnóstico", description: "A IA cruza padrões de clima organizacional e aponta a causa-raiz" },
                   { label: "Ação", description: "O mentor com IA treina o líder e firma um compromisso com prazo" },
                   { label: "Evolução", description: "O próximo ciclo mede se a ação funcionou" },
                 ]}
@@ -165,13 +186,6 @@ export default function CulturaPage() {
               esgotado hoje. O mentor da Ryze acompanha cada líder no momento exato da decisão, com o contexto real
               do seu time — desenvolvimento de liderança embutido na rotina, a prioridade nº 1 apontada pelo GPTW
               para 2026.
-            </div>
-            <div className="rounded-lg border border-border bg-bg p-6 text-body-sm text-fg-muted">
-              <strong className="font-semibold text-fg">E por que a Ryze em cultura:</strong> a tecnologia mede a
-              aderência cultural — mas transformar esse dado em cultura viva exige método. É a especialidade da
-              Ryze: diagnóstico, estruturação e comunicação de cultura, com resultados comprovados em campo — de
-              selos GPTW e Great People Mental Health a operações onde 88% dos colaboradores reconhecem a cultura no
-              dia a dia após um ano de trabalho estruturado.
             </div>
           </div>
         </div>
@@ -202,57 +216,17 @@ export default function CulturaPage() {
         ]}
       />
 
-      <RoiCalculator
-        eyebrow="Faça a conta"
-        title="Quanto custa não fazer nada?"
-        description={
-          <>
-            <p>
-              Pegue uma empresa de 200 pessoas com salário médio de R$ 4.500 e turnover de 30% ao ano — abaixo da
-              média de vários setores no Brasil. São 60 substituições por ano.
-            </p>
-            <p>
-              Usando o piso conservador do custo de reposição (50% do salário anual, segundo a SHRM), a conta ao
-              lado se paga sozinha: cada punhado de saídas evitadas já cobre o investimento em escuta contínua —
-              sem contar produtividade, absenteísmo e falhas operacionais.
-            </p>
-          </>
-        }
-        punchline="Retenção deixou de ser tema de RH. É proteção de margem."
-        rows={[
-          { label: "Colaboradores", value: "200" },
-          { label: "Salário médio mensal", value: "R$ 4.500" },
-          { label: "Turnover anual (30%)", value: "60 saídas" },
-          { label: "Custo por substituição (piso de 50%)", value: "R$ 27.000" },
-        ]}
-        totalRow={{ label: "Custo anual do turnover", value: "≈ R$ 1,6 milhão" }}
-        disclaimer="Estimativa simplificada, baseada em premissas conservadoras — não é benchmark de mercado."
-      />
+      <div className="mx-auto max-w-5xl px-5 pt-10 lg:px-8">
+        <div className="rounded-lg border border-border bg-bg-surface p-6 text-body-sm text-fg-muted">
+          <strong className="font-semibold text-fg">A tecnologia por trás desses resultados:</strong> a Flecha,
+          criada por Edem Moulin ao longo de mais de 25 anos como executivo de RH — a mesma metodologia que levou
+          uma multinacional da 42ª à 1ª posição no ranking GPTW, mantida por três anos consecutivos. Como fundador
+          da Flecha, Edem se juntou à Ryze HR para trazer essa escuta contínua, o eNPS e o diagnóstico de clima
+          organizacional para o seu time.
+        </div>
+      </div>
 
       <section className="px-5 py-16 lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          <p className="text-label font-semibold uppercase tracking-wider text-accent-600 dark:text-accent-400">
-            Por trás da tecnologia
-          </p>
-          <h2 className="mt-2 font-display text-display-md font-semibold text-fg">
-            A metodologia que já foi 3x nº 1 do GPTW, agora com a Ryze
-          </h2>
-          <div className="mt-6 flex flex-col gap-4 text-body-md text-fg-muted">
-            <p>
-              A tecnologia por trás do filme é a Flecha, e seu fundador, <strong className="text-fg">Edem Moulin</strong>,
-              construiu a metodologia ao longo de mais de 25 anos como executivo de RH — foi o principal vetor que
-              levou uma multinacional da 42ª à 1ª posição no ranking GPTW, mantida por três anos consecutivos, com
-              recordes de produtividade.
-            </p>
-            <p>
-              Como fundador da Flecha, Edem se junta à Ryze HR nessa parceria para levar a escuta contínua às
-              empresas — unindo a tecnologia dele à experiência da Ryze em transformar RH em resultado de negócio.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-border bg-bg-surface px-5 py-16 lg:px-8">
         <div className="mx-auto max-w-3xl">
           <p className="text-label font-semibold uppercase tracking-wider text-accent-600 dark:text-accent-400">
             Veja em ação
@@ -292,7 +266,7 @@ export default function CulturaPage() {
 
       <DualCtaBand
         title="Sua empresa vai continuar tirando fotos — ou vai começar a assistir ao filme?"
-        subtitle="A Ryze HR implementa a escuta contínua na sua empresa — do diagnóstico à execução com os times, ciclo após ciclo, com resultado medido em engajamento, retenção e caixa."
+        subtitle="A Ryze HR implementa a pesquisa de clima organizacional e a escuta contínua na sua empresa — do diagnóstico à execução com os times, ciclo após ciclo, com resultado medido em engajamento, retenção e caixa."
         primaryLabel="Falar com um especialista"
         primaryHref={CONTATO_ESPECIALISTA}
         secondaryLabel="Agendar demonstração"
