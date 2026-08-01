@@ -10,6 +10,8 @@ import { GuidedJourney } from "@/components/painel/guided-journey";
 import { FreePlanNudge } from "@/components/painel/free-plan-nudge";
 import { getOnboardingJourney, pickCurrentJobApplication } from "@/lib/guided-flow";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { openBillingPortal } from "./actions";
 
 export const metadata: Metadata = {
   title: "Sua área — Ryze",
@@ -137,9 +139,18 @@ export default async function PainelPage() {
           </h1>
           <p className="mt-1 text-body-sm text-fg-muted">Suas ferramentas de IA para a busca de vagas.</p>
         </div>
-        <Badge variant={isPaid ? "recommended" : "neutral"}>
-          Plano {planLabel[plan]}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant={isPaid ? "recommended" : "neutral"}>
+            Plano {planLabel[plan]}
+          </Badge>
+          {isPaid && (
+            <form action={openBillingPortal}>
+              <Button type="submit" variant="ghost" size="sm" className="border-border">
+                Gerenciar assinatura
+              </Button>
+            </form>
+          )}
+        </div>
       </div>
 
       {subscription && (
