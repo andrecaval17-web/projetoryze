@@ -16,6 +16,14 @@ interface DarkHeroProps {
   secondaryCta?: ReactNode;
   stats?: DarkHeroStat[];
   className?: string;
+  /** "2xl" (padrão, Produtos Academy/Cultura) ou "lg" pra uma versão mais
+   * compacta — usado em /empresas pra não competir em tamanho com a home. */
+  titleSize?: "2xl" | "lg";
+  /** Esconde a seta animada — usado em /empresas pra não repetir o mesmo
+   * "momento de marca" da home logo na chegada (achado do cliente em
+   * 2026-08-02: repetir o mesmo ícone grande reforçava a sensação de
+   * página duplicada). */
+  hideArrow?: boolean;
 }
 
 /**
@@ -32,6 +40,8 @@ export function DarkHero({
   secondaryCta,
   stats,
   className,
+  titleSize = "2xl",
+  hideArrow = false,
 }: DarkHeroProps) {
   return (
     <section
@@ -52,12 +62,19 @@ export function DarkHero({
       />
 
       <div className="relative flex flex-col items-center">
-        <FoldArrow
-          tone="gradient"
-          className="h-20 w-16 animate-float drop-shadow-[0_0_24px_rgba(232,92,42,0.55)]"
-        />
+        {!hideArrow && (
+          <FoldArrow
+            tone="gradient"
+            className="h-20 w-16 animate-float drop-shadow-[0_0_24px_rgba(232,92,42,0.55)]"
+          />
+        )}
 
-        <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-accent-500/40 bg-accent-500/10 px-3 py-1">
+        <div
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full border border-accent-500/40 bg-accent-500/10 px-3 py-1",
+            !hideArrow && "mt-6"
+          )}
+        >
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-400 opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-500" />
@@ -67,7 +84,12 @@ export function DarkHero({
           </span>
         </div>
 
-        <h1 className="mt-5 max-w-3xl font-display text-display-2xl font-semibold text-fg">
+        <h1
+          className={cn(
+            "mt-5 max-w-3xl font-display font-semibold text-fg",
+            titleSize === "lg" ? "text-display-lg" : "text-display-2xl"
+          )}
+        >
           {title}
         </h1>
         <p className="mt-4 max-w-xl text-body-lg text-fg-muted">{subtitle}</p>
