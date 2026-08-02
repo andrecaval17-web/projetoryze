@@ -43,7 +43,7 @@ export default function EmpresasPage() {
             O RH da sua empresa, <span className="text-gradient-ryze">turbinado por IA</span>
           </>
         }
-        subtitle="Consultoria estratégica e produtos de inteligência artificial que aceleram recrutamento, cultura e desenvolvimento — para o seu time contratar melhor e mais rápido."
+        subtitle="Metodologia de RH comprovada, agora acelerada por inteligência artificial — decisões mais rápidas, resultado medido."
         primaryCta={
           <Button asChild size="lg">
             <Link href="/contato">Falar com um especialista</Link>
