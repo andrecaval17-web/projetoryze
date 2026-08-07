@@ -40,9 +40,17 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
     .slice(0, MAX_RELATED_CITIES);
 
   // Nunca cruza B2C e B2B na mesma malha — um card de "Currículo Grátis"
-  // não faz sentido na página de Recrutamento e Seleção, e vice-versa.
+  // não faz sentido na página de Recrutamento e Seleção, e vice-versa. Um
+  // tipo ainda "prototype" (em revisão) só entra na malha na própria cidade
+  // protótipo (Vitória/ES) — senão toda página já publicada passaria a
+  // linkar pra um tipo que só existe numa cidade, gerando 83 pares de link
+  // "morto" (sem conteúdo pré-renderado nem no sitemap) espalhados pelo site.
+  const isPrototypeCity = city.uf === "es" && city.slug === "vitoria";
   const otherTypesSameCity = GEO_PAGE_TYPES.filter(
-    (t) => t.slug !== pageType.slug && t.audience === pageType.audience
+    (t) =>
+      t.slug !== pageType.slug &&
+      t.audience === pageType.audience &&
+      (t.status === "batch" || isPrototypeCity)
   );
 
   // Service, não LocalBusiness — ver comentário em lib/geo/page-types.ts.

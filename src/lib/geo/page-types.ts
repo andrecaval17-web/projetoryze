@@ -9,14 +9,27 @@ export type GeoPageTypeSlug =
   | "recrutamento-e-selecao"
   | "consultoria-de-rh"
   | "treinamento-e-desenvolvimento"
-  | "cultura-organizacional";
+  | "cultura-organizacional"
+  | "cargos-e-salarios";
 
 export type GeoAudience = "b2c" | "b2b";
+
+/**
+ * "prototype": só pré-renderado pra Vitória/ES (generateStaticParams) e de
+ * fora do sitemap — é assim que um tipo novo entra em revisão sem já virar
+ * lote completo. "batch": pré-renderado pra todas as cidades ativas em
+ * `geo_cities` e presente no sitemap — vira isso só depois de aprovado
+ * explicitamente (ver histórico: os 4 tipos B2C ficaram "prototype" de
+ * propósito; os 4 primeiros B2B viraram "batch" após aprovação em
+ * 2026-08-07).
+ */
+export type GeoBatchStatus = "prototype" | "batch";
 
 export interface GeoPageType {
   slug: GeoPageTypeSlug;
   /** "b2c" (candidato, self-service) ou "b2b" (empresa, venda consultiva) — controla a malha "outros serviços nesta cidade": nunca cruza os dois públicos na mesma lista. */
   audience: GeoAudience;
+  status: GeoBatchStatus;
   /** Nome completo do serviço — usado no H1, title e nas listas de links da malha. */
   label: string;
   /** Versão curta pros links "em outras cidades" (evita títulos gigantes na malha). */
@@ -51,6 +64,7 @@ export const GEO_PAGE_TYPES: GeoPageType[] = [
   {
     slug: "curriculo-gratis",
     audience: "b2c",
+    status: "prototype",
     label: "Currículo Grátis com IA",
     shortLabel: "Currículo com IA",
     eyebrow: "Currículo com IA · grátis",
@@ -75,6 +89,7 @@ export const GEO_PAGE_TYPES: GeoPageType[] = [
   {
     slug: "recolocacao-profissional",
     audience: "b2c",
+    status: "prototype",
     label: "Recolocação Profissional",
     shortLabel: "Recolocação Profissional",
     eyebrow: "Recolocação de carreira",
@@ -99,6 +114,7 @@ export const GEO_PAGE_TYPES: GeoPageType[] = [
   {
     slug: "vagas-de-emprego",
     audience: "b2c",
+    status: "prototype",
     label: "Vagas de Emprego",
     shortLabel: "Vagas de Emprego",
     eyebrow: "Vagas de emprego",
@@ -123,6 +139,7 @@ export const GEO_PAGE_TYPES: GeoPageType[] = [
   {
     slug: "mentoria-de-carreira",
     audience: "b2c",
+    status: "prototype",
     label: "Mentoria de Carreira",
     shortLabel: "Mentoria de Carreira",
     eyebrow: "Mentoria de carreira",
@@ -149,6 +166,7 @@ export const GEO_PAGE_TYPES: GeoPageType[] = [
   {
     slug: "recrutamento-e-selecao",
     audience: "b2b",
+    status: "batch",
     label: "Recrutamento e Seleção",
     shortLabel: "Recrutamento e Seleção",
     eyebrow: "Recrutamento e Seleção",
@@ -178,6 +196,7 @@ export const GEO_PAGE_TYPES: GeoPageType[] = [
   {
     slug: "consultoria-de-rh",
     audience: "b2b",
+    status: "batch",
     label: "Consultoria de RH",
     shortLabel: "Consultoria de RH",
     eyebrow: "Consultoria em RH",
@@ -207,6 +226,7 @@ export const GEO_PAGE_TYPES: GeoPageType[] = [
   {
     slug: "treinamento-e-desenvolvimento",
     audience: "b2b",
+    status: "batch",
     label: "Treinamento e Desenvolvimento Corporativo",
     shortLabel: "Treinamento e Desenvolvimento",
     eyebrow: "Treinamento e Desenvolvimento",
@@ -236,6 +256,7 @@ export const GEO_PAGE_TYPES: GeoPageType[] = [
   {
     slug: "cultura-organizacional",
     audience: "b2b",
+    status: "batch",
     label: "Cultura Organizacional & Engajamento",
     shortLabel: "Cultura Organizacional",
     eyebrow: "Cultura Organizacional",
@@ -260,6 +281,40 @@ export const GEO_PAGE_TYPES: GeoPageType[] = [
       { value: "23%", label: "mais lucratividade em unidades de negócio com times engajados", source: "Gallup" },
       { value: "18%", label: "mais produtividade em times altamente engajados", source: "Gallup" },
       { value: "78%", label: "menos absenteísmo em ambientes de alto engajamento", source: "Gallup" },
+    ],
+  },
+  // 5º tipo B2B — protótipo aprovado em 2026-08-07, já em "batch". Copy
+  // adaptada de /consultoria/cargos-e-salarios/page.tsx (mesmos
+  // diferenciais e fontes citadas), não inventada do zero.
+  {
+    slug: "cargos-e-salarios",
+    audience: "b2b",
+    status: "batch",
+    label: "Cargos e Salários & Remuneração Estratégica",
+    shortLabel: "Cargos e Salários",
+    eyebrow: "Cargos e Salários · Remuneração Estratégica",
+    ctaHref: "/contato",
+    ctaLabel: "Falar com um especialista",
+    serviceType: "Consultoria de cargos, salários e remuneração estratégica",
+    buildTitle: (city) =>
+      `Cargos e Salários e Remuneração Estratégica em ${city.name} (${ufUpper(city)}) — Ryze`,
+    buildDescription: (city) =>
+      `Estruturação de cargos, salários e remuneração estratégica para empresas em ${city.name}: menos despesa, mais atração de talentos e menos turnover passivo.`,
+    buildH1: (city) => `Cargos e Salários e Remuneração Estratégica em ${city.name}, ${ufUpper(city)}`,
+    buildIntro: (city) =>
+      `Empresas em ${city.name} usam a Ryze para estruturar cargos e salários com uma lente de remuneração estratégica — reduzindo despesa, atraindo os melhores profissionais e contendo o turnover passivo.`,
+    buildBenefits: () => [
+      "Estudos de teses de remuneração (fixo, variável, benefícios)",
+      "Redução de despesas sem perder competitividade",
+      "Pacotes atrativos para os melhores profissionais do mercado",
+      "Trilhas de carreira e progressão claras para o time",
+    ],
+    buildWhatsappMessage: (city) =>
+      `Olá! Vi a página de Cargos e Salários e Remuneração Estratégica da Ryze para empresas em ${city.name} e quero falar com um especialista.`,
+    results: [
+      { value: "até 50%", label: "menos rotatividade em empresas com estratégia de remuneração definida", source: "Compport / benchmarks de mercado" },
+      { value: "<8%", label: "de turnover voluntário com pagamento acima da média (vs. >15% abaixo da média)", source: "Staffing by Starboard" },
+      { value: "até 33%", label: "do salário anual é o custo de repor um colaborador que pede demissão", source: "SHRM / NetSuite" },
     ],
   },
 ];

@@ -18,24 +18,27 @@ interface GeoParams {
 export const revalidate = 86400;
 export const dynamicParams = true;
 
-// B2C fica pausado no protótipo (só Vitória/ES) — combinado em 2026-08-07,
-// não avançar pro lote completo até o B2B estar validado. B2B já é o piloto
-// Tier 1 de verdade: todas as cidades ativas em `geo_cities` (ES completo +
-// as 5 metrópoles aprovadas) × os 4 tipos B2B, pré-renderadas no build.
+// Cada tipo controla seu próprio estágio via `status` (ver GeoBatchStatus em
+// lib/geo/page-types.ts): "prototype" só pré-renderа Vitória/ES (assim entra
+// um tipo novo em revisão sem virar lote); "batch" pré-renderа todas as
+// cidades ativas em `geo_cities`. Hoje: os 4 tipos B2C ficam "prototype"
+// (pausados desde 2026-08-07); os 4 primeiros tipos B2B são "batch" (piloto
+// Tier 1 aprovado); "Cargos e Salários" é o 5º tipo, ainda "prototype".
 export async function generateStaticParams(): Promise<GeoParams[]> {
-  const b2cPrototype = GEO_PAGE_TYPES.filter((type) => type.audience === "b2c").map((type) => ({
+  const prototypeTypes = GEO_PAGE_TYPES.filter((type) => type.status === "prototype");
+  const prototypeParams = prototypeTypes.map((type) => ({
     tipo: type.slug,
     uf: "es",
     cidade: "vitoria",
   }));
 
-  const b2bTypes = GEO_PAGE_TYPES.filter((type) => type.audience === "b2b");
+  const batchTypes = GEO_PAGE_TYPES.filter((type) => type.status === "batch");
   const cities = await listGeoCities();
-  const b2bBatch = b2bTypes.flatMap((type) =>
+  const batchParams = batchTypes.flatMap((type) =>
     cities.map((city) => ({ tipo: type.slug, uf: city.uf, cidade: city.slug }))
   );
 
-  return [...b2cPrototype, ...b2bBatch];
+  return [...prototypeParams, ...batchParams];
 }
 
 async function resolveGeoPage(paramsPromise: Promise<GeoParams>) {

@@ -26,10 +26,11 @@ const routes: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: "/privacidade", priority: 0.2, changeFrequency: "yearly" },
 ];
 
-// Só o piloto B2B (Tier 1: ES completo + as 5 metrópoles aprovadas) entra no
-// sitemap — o protótipo B2C (Vitória/ES) segue pausado e de propósito fora
-// da indexação até ser validado e ter sua própria expansão aprovada. Prioridade
-// desce por tier (1 = capitais/grandes centros, 3 = municípios menores).
+// Só tipos com status "batch" entram no sitemap (ver GeoBatchStatus em
+// lib/geo/page-types.ts) — protótipos em revisão (todo o B2C, e qualquer
+// tipo B2B novo ainda não aprovado) ficam de propósito fora da indexação
+// até terem sua expansão aprovada. Prioridade desce por tier (1 =
+// capitais/grandes centros, 3 = municípios menores).
 const GEO_PRIORITY_BY_TIER: Record<number, number> = { 1: 0.7, 2: 0.5, 3: 0.4 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -43,9 +44,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority,
   }));
 
-  const b2bTypes = GEO_PAGE_TYPES.filter((type) => type.audience === "b2b");
+  const batchTypes = GEO_PAGE_TYPES.filter((type) => type.status === "batch");
   const cities = await listGeoCities();
-  const geoEntries = b2bTypes.flatMap((type) =>
+  const geoEntries = batchTypes.flatMap((type) =>
     cities.map((city) => ({
       url: `${siteUrl}/${type.slug}/${city.uf}/${city.slug}`,
       lastModified,
