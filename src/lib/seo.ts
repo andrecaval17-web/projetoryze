@@ -15,10 +15,13 @@ export function buildPageMetadata({
   title,
   description,
   path,
+  ogImageAlt,
 }: {
   title: string;
   description: string;
   path: string;
+  /** Alt localizado da imagem de compartilhamento — ex: "Currículo Grátis com IA em Vitória, ES" nas páginas geo. Default "Ryze". */
+  ogImageAlt?: string;
 }): Metadata {
   const url = `${getSiteUrl()}${path}`;
 
@@ -33,7 +36,7 @@ export function buildPageMetadata({
       siteName: "Ryze",
       locale: "pt_BR",
       type: "website",
-      images: [DEFAULT_OG_IMAGE],
+      images: [{ ...DEFAULT_OG_IMAGE, alt: ogImageAlt ?? DEFAULT_OG_IMAGE.alt }],
     },
     twitter: {
       card: "summary_large_image",

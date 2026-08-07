@@ -48,7 +48,7 @@ export function ResultsBand({ title, subtitle, stats, note, tone = "light", clas
                 {stat.value}
               </dt>
               <dd className="mt-2 text-body-sm text-fg">{stat.label}</dd>
-              <p className="mt-4 text-caption text-fg-muted">Fonte: {stat.source}</p>
+              <dd className="mt-4 text-caption text-fg-muted">Fonte: {stat.source}</dd>
             </div>
           ))}
         </dl>

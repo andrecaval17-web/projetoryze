@@ -1,6 +1,6 @@
 import { WhatsappIcon } from "@/components/ui/social-icons";
+import { WHATSAPP_NUMBER } from "@/lib/whatsapp-number";
 
-const WHATSAPP_NUMBER = "5527988881302";
 const WHATSAPP_MESSAGE = "Olá, preciso de ajuda com o site da Ryze";
 
 export function WhatsappButton() {
