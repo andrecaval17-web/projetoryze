@@ -88,6 +88,60 @@ async function upsertSubscription(subscription: Stripe.Subscription) {
   }
 }
 
+// Reembolso (cobrança avulsa OU ligada a uma assinatura) é um evento
+// separado de cancelamento no Stripe — ver conversa de 2026-08-02. Sem
+// isso, um reembolso feito manualmente pelo Dashboard devolve o dinheiro do
+// candidato mas NÃO revoga o acesso dele, porque nenhum outro evento
+// (`customer.subscription.*`) dispara sozinho quando você só reembolsa uma
+// cobrança. Só reembolso TOTAL cancela a assinatura — reembolso parcial é
+// tratado como gesto de boa vontade e não deveria cortar acesso.
+//
+// Desde a versão "basil" da API Stripe (2025-03-31), Charge não tem mais
+// campo `invoice` e Invoice não tem mais campo `payment_intent` — o elo
+// direto foi removido. O caminho atual é: Charge -> payment_intent ->
+// InvoicePayment (stripe.invoicePayments.list) -> invoice ->
+// invoice.parent.subscription_details.subscription.
+async function handleChargeRefunded(charge: Stripe.Charge, stripe: Stripe) {
+  const isFullRefund = charge.amount_refunded >= charge.amount;
+  if (!isFullRefund) return;
+
+  const paymentIntentId =
+    typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
+  if (!paymentIntentId) return; // Cobrança sem PaymentIntent — nada a rastrear.
+
+  const invoicePayments = await stripe.invoicePayments.list({
+    payment: { type: "payment_intent", payment_intent: paymentIntentId },
+    limit: 1,
+  });
+  const invoicePayment = invoicePayments.data[0];
+  if (!invoicePayment) return; // Cobrança avulsa, não ligada a uma fatura — nada a cancelar.
+
+  const invoiceId =
+    typeof invoicePayment.invoice === "string" ? invoicePayment.invoice : invoicePayment.invoice?.id;
+  if (!invoiceId) return;
+
+  const invoice = await stripe.invoices.retrieve(invoiceId);
+  const subscriptionRef =
+    invoice.parent?.type === "subscription_details"
+      ? invoice.parent.subscription_details?.subscription
+      : null;
+  const subscriptionId = typeof subscriptionRef === "string" ? subscriptionRef : subscriptionRef?.id;
+  if (!subscriptionId) return; // Fatura avulsa (não de assinatura) — nada a cancelar.
+
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  if (subscription.status === "canceled") return; // Já cancelada — nada a fazer.
+
+  const canceled = await stripe.subscriptions.cancel(subscriptionId);
+  console.log(
+    `[stripe webhook] assinatura ${subscriptionId} cancelada por reembolso total da cobrança ${charge.id}`
+  );
+  // Chama upsertSubscription direto (mesmo padrão de checkout.session.completed)
+  // em vez de confiar só no customer.subscription.deleted disparado pelo
+  // cancel() — evita depender de ordem/reentrega de webhook pra revogar o
+  // acesso o quanto antes.
+  await upsertSubscription(canceled);
+}
+
 export async function POST(req: Request) {
   const signature = req.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -132,6 +186,12 @@ export async function POST(req: Request) {
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
         await upsertSubscription(subscription);
+        break;
+      }
+
+      case "charge.refunded": {
+        const charge = event.data.object as Stripe.Charge;
+        await handleChargeRefunded(charge, stripe);
         break;
       }
 

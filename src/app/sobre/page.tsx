@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { HeartHandshake, Gauge, ShieldCheck, Sparkles } from "lucide-react";
 import { PageHero } from "@/components/sections/page-hero";
 import { CtaBand } from "@/components/sections/cta-band";
+import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
 export const metadata: Metadata = {
   title: "Sobre — Ryze",
@@ -86,7 +87,7 @@ export default function SobrePage() {
         title="Quer conhecer a Ryze de perto?"
         subtitle="Fale com a gente e entenda como podemos ajudar o seu RH."
         ctaLabel="Entrar em contato"
-        ctaHref="/contato"
+        ctaHref={buildContactWhatsappHref("os serviços da Ryze")}
       />
     </>
   );

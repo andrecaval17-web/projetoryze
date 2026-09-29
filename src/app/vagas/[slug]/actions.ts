@@ -81,20 +81,31 @@ export async function submitApplication(
     return { status: "error", message: "Esta vaga não está mais recebendo candidaturas." };
   }
 
+  // Perguntas arquivadas (removidas pelo admin depois de a vaga ter sido
+  // divulgada) não entram: quem responder agora só vê as ativas.
   const { data: questions, error: questionsError } = await supabase
     .from("ats_job_questions")
     .select("id, question")
-    .eq("job_posting_id", jobPostingId);
+    .eq("job_posting_id", jobPostingId)
+    .is("archived_at", null);
 
   if (questionsError) {
     console.error("Failed to fetch ATS job questions", questionsError);
     return { status: "error", message: "Não foi possível carregar o formulário. Tente novamente." };
   }
 
-  const answers = (questions ?? []).map((q) => ({
-    questionId: q.id,
-    answer: String(formData.get(`question-${q.id}`) || "").trim(),
-  }));
+  // Campo AUSENTE do FormData ≠ campo em branco. Se o admin adicionar uma
+  // pergunta enquanto o candidato está com a página aberta, o formulário dele
+  // é anterior à mudança e nem tem esse campo — recusar aqui deixaria o
+  // candidato preso num erro de "responda todas as perguntas" sem nenhum campo
+  // vazio na tela. Nesse caso a candidatura passa sem a resposta (o pipeline
+  // marca a lacuna), e só o que ele viu e deixou em branco é cobrado.
+  const answers = (questions ?? [])
+    .filter((q) => formData.has(`question-${q.id}`))
+    .map((q) => ({
+      questionId: q.id,
+      answer: String(formData.get(`question-${q.id}`) || "").trim(),
+    }));
 
   if (answers.some((a) => !a.answer)) {
     return { status: "error", message: "Responda todas as perguntas antes de enviar." };

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PiggyBank, Magnet, UserMinus, Scale, BarChart3, FileSearch } from "lucide-react";
 import { ServicePageTemplate } from "@/components/sections/service-page-template";
 import { buildPageMetadata } from "@/lib/seo";
+import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Cargos e Salários e Remuneração Estratégica — Ryze Consultoria",
@@ -96,7 +97,7 @@ export default function RemuneracaoEstrategicaPage() {
       ]}
       ctaLabel="Quer remuneração que retém e cabe no orçamento?"
       ctaSubtitle="Fale com um especialista sobre um estudo de remuneração estratégica."
-      ctaHref="/contato"
+      ctaHref={buildContactWhatsappHref("Cargos e Salários e Remuneração Estratégica")}
     />
   );
 }

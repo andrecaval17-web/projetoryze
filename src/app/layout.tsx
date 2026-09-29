@@ -24,6 +24,11 @@ export const metadata: Metadata = {
   title: "Ryze — Consultoria em Recursos Humanos",
   description:
     "Ryze une consultoria de RH e inteligência artificial para acelerar recrutamento, cultura organizacional e recolocação de carreira.",
+  verification: {
+    other: {
+      "msvalidate.01": "360E863462370BC2ACA3F6340F142D7F",
+    },
+  },
 };
 
 // Light is the default brand experience — dark only applies if the visitor

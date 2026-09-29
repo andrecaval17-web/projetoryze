@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { ArrowLeft, KanbanSquare } from "lucide-react";
+import { ArrowLeft, KanbanSquare, Pencil } from "lucide-react";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,7 @@ export default async function VagaAdminDetailPage({
     .from("ats_job_questions")
     .select("id, question")
     .eq("job_posting_id", id)
+    .is("archived_at", null)
     .order("display_order", { ascending: true });
 
   const applicationCount = job.ats_applications?.[0]?.count ?? 0;
@@ -65,7 +66,15 @@ export default async function VagaAdminDetailPage({
             {job.status}
           </Badge>
         </div>
-        <JobStatusSelect jobId={job.id} status={job.status as JobStatus} />
+        <div className="flex shrink-0 items-center gap-2">
+          <Button asChild variant="secondary">
+            <Link href={`/vagas-admin/${job.id}/editar`}>
+              <Pencil className="h-4 w-4" />
+              Editar vaga
+            </Link>
+          </Button>
+          <JobStatusSelect jobId={job.id} status={job.status as JobStatus} />
+        </div>
       </div>
 
       <div className="mt-6 rounded-xl border border-accent-500/40 bg-accent-500/5 p-6">

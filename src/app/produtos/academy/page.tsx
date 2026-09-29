@@ -10,6 +10,7 @@ import { DualCtaBand } from "@/components/sections/dual-cta-band";
 import { FoldStepIndicator } from "@/components/brand/fold-step-indicator";
 import { Button } from "@/components/ui/button";
 import { buildPageMetadata } from "@/lib/seo";
+import { buildContactWhatsappHref, buildDemoWhatsappHref } from "@/lib/whatsapp-number";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Ryze Academy — Educação Corporativa com IA — Ryze",
@@ -18,8 +19,8 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/produtos/academy",
 });
 
-const CONTATO_ESPECIALISTA = "/contato?produto=academy&intencao=especialista";
-const CONTATO_DEMONSTRACAO = "/contato?produto=academy&intencao=demonstracao";
+const CONTATO_ESPECIALISTA = buildContactWhatsappHref("a Ryze Academy");
+const CONTATO_DEMONSTRACAO = buildDemoWhatsappHref("a Ryze Academy");
 
 export default function AcademyPage() {
   return (
@@ -34,12 +35,16 @@ export default function AcademyPage() {
         subtitle="Sua empresa já produz conhecimento todos os dias — em vídeos, documentos, treinamentos presenciais. O problema é que ele se perde. A Ryze Academy centraliza tudo numa plataforma onde cada colaborador aprende no seu ritmo e tira dúvidas com uma IA treinada no conteúdo real da sua empresa."
         primaryCta={
           <Button asChild size="lg">
-            <Link href={CONTATO_ESPECIALISTA}>Falar com um especialista</Link>
+            <a href={CONTATO_ESPECIALISTA} target="_blank" rel="noopener noreferrer">
+              Falar com um especialista
+            </a>
           </Button>
         }
         secondaryCta={
           <Button asChild size="lg" variant="secondary">
-            <Link href={CONTATO_DEMONSTRACAO}>Agendar demonstração</Link>
+            <a href={CONTATO_DEMONSTRACAO} target="_blank" rel="noopener noreferrer">
+              Agendar demonstração
+            </a>
           </Button>
         }
       />
@@ -194,7 +199,7 @@ export default function AcademyPage() {
             A prova está na plataforma rodando, não num slide
           </h2>
 
-          <ul className="mt-8 flex flex-col rounded-xl border border-border bg-bg-surface p-7">
+          <ul className="mt-8 flex flex-col rounded-xl border border-border bg-bg p-7">
             {[
               {
                 icon: MessageCircleQuestion,

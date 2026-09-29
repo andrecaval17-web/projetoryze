@@ -79,10 +79,14 @@ export function UpgradePlanCards({ plans }: { plans: CandidatePlan[] }) {
                     Li e concordo com os{" "}
                     <Link href="/termos" target="_blank" className="font-medium text-accent-600 underline underline-offset-2 dark:text-accent-400">
                       Termos de Uso
-                    </Link>{" "}
-                    e a{" "}
+                    </Link>
+                    {", "}a{" "}
                     <Link href="/privacidade" target="_blank" className="font-medium text-accent-600 underline underline-offset-2 dark:text-accent-400">
                       Política de Privacidade
+                    </Link>
+                    {" "}e a{" "}
+                    <Link href="/politica-cancelamento" target="_blank" className="font-medium text-accent-600 underline underline-offset-2 dark:text-accent-400">
+                      Política de Cancelamento e Reembolso
                     </Link>
                     .
                   </span>

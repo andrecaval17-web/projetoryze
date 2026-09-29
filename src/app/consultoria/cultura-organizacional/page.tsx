@@ -3,6 +3,7 @@ import { Compass, Megaphone, Repeat, PenTool, Radar, Users2 } from "lucide-react
 import { ServicePageTemplate } from "@/components/sections/service-page-template";
 import { CultureHero } from "@/components/sections/culture-hero";
 import { buildPageMetadata } from "@/lib/seo";
+import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Cultura Organizacional — Ryze Consultoria",
@@ -98,7 +99,7 @@ export default function CulturaOrganizacionalPage() {
       ]}
       ctaLabel="Quer uma cultura que as pessoas realmente vivem?"
       ctaSubtitle="Fale com um especialista sobre o diagnóstico de cultura."
-      ctaHref="/contato"
+      ctaHref={buildContactWhatsappHref("Cultura Organizacional")}
     />
   );
 }

@@ -44,10 +44,13 @@ export default async function VagaPublicaPage({
     notFound();
   }
 
+  // Só as ativas: pergunta arquivada pelo admin some do formulário sem levar
+  // junto as respostas de quem já se candidatou (ver 0024_ats_job_editing.sql).
   const { data: questions } = await supabase
     .from("ats_job_questions")
     .select("id, question")
     .eq("job_posting_id", job.id)
+    .is("archived_at", null)
     .order("display_order", { ascending: true });
 
   return (

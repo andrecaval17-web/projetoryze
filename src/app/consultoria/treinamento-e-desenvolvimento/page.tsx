@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Target, Route, BarChart3, Users, Sparkles, Repeat } from "lucide-react";
 import { ServicePageTemplate } from "@/components/sections/service-page-template";
 import { buildPageMetadata } from "@/lib/seo";
+import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Treinamento e Desenvolvimento — Ryze Consultoria",
@@ -95,7 +96,7 @@ export default function TreinamentoEDesenvolvimentoPage() {
       ]}
       ctaLabel="Quer desenvolver seu time com propósito?"
       ctaSubtitle="Fale com um especialista sobre o programa ideal para o seu time."
-      ctaHref="/contato"
+      ctaHref={buildContactWhatsappHref("Treinamento e Desenvolvimento")}
     />
   );
 }

@@ -9,7 +9,9 @@ import { cn } from "@/lib/utils";
 
 export interface AnswerItem {
   question: string;
-  answer: string;
+  /** `null` = pergunta adicionada à vaga depois desta candidatura. */
+  answer: string | null;
+  addedAfterApplication?: boolean;
 }
 
 export interface KanbanApplication {
@@ -25,6 +27,8 @@ export interface KanbanApplication {
   createdAt: string;
   candidateUserId: string | null;
   answers: AnswerItem[];
+  /** Descrição/requisitos da vaga mudaram depois deste envio — a nota de aderência saiu de outra régua. */
+  jobEditedAfterApplication: boolean;
 }
 
 export const STAGES: { key: ApplicationStatus; label: string }[] = [

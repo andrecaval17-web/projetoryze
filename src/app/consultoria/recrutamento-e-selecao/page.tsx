@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Award, Cpu, Timer, Target, Layers, ShieldCheck } from "lucide-react";
 import { ServicePageTemplate } from "@/components/sections/service-page-template";
 import { buildPageMetadata } from "@/lib/seo";
+import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Recrutamento e Seleção — Ryze Consultoria",
@@ -96,7 +97,7 @@ export default function RecrutamentoESelecaoPage() {
       ]}
       ctaLabel="Pronto para contratar melhor e mais rápido?"
       ctaSubtitle="Fale com um especialista e receba finalistas qualificados em até 15 dias."
-      ctaHref="/contato"
+      ctaHref={buildContactWhatsappHref("Recrutamento e Seleção")}
     />
   );
 }

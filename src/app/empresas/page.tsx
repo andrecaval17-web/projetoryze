@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FoldCorner } from "@/components/brand/fold-corner";
 import { buildPageMetadata } from "@/lib/seo";
+import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Para empresas — Ryze",
@@ -37,19 +38,18 @@ export default function EmpresasPage() {
   return (
     <>
       <DarkHero
-        className="min-h-0 py-16"
-        titleSize="lg"
-        hideArrow
-        eyebrow="Consultoria + IA · para empresas"
+        eyebrow="IA aplicada a RH · para empresas"
         title={
           <>
-            Duas frentes, <span className="text-gradient-ryze">um parceiro de RH</span>
+            O RH da sua empresa, <span className="text-gradient-ryze">turbinado por IA</span>
           </>
         }
-        subtitle="Metodologia de RH comprovada, agora acelerada por inteligência artificial — decisões mais rápidas, resultado medido."
+        subtitle="Consultoria estratégica e produtos de inteligência artificial que aceleram recrutamento, cultura e desenvolvimento — para o seu time contratar melhor e mais rápido."
         primaryCta={
           <Button asChild size="lg">
-            <Link href="/contato">Falar com um especialista</Link>
+            <a href={buildContactWhatsappHref("os serviços da Ryze para empresas")} target="_blank" rel="noopener noreferrer">
+              Falar com um especialista
+            </a>
           </Button>
         }
         stats={[
@@ -164,7 +164,7 @@ export default function EmpresasPage() {
         title="Pronto para colocar a IA a favor do seu RH?"
         subtitle="Fale com um especialista e descubra o melhor caminho para a sua empresa."
         ctaLabel="Falar com um especialista"
-        ctaHref="/contato"
+        ctaHref={buildContactWhatsappHref("os serviços da Ryze para empresas")}
         tone="dark"
       />
     </>
