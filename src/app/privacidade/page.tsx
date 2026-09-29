@@ -164,8 +164,8 @@ export default function PrivacidadePage() {
         </ul>
         <p>
           Para exercer qualquer desses direitos, entre em contato pelo e-mail{" "}
-          <a href="mailto:contato@ryze.com.br" className="text-accent-600 underline underline-offset-2 dark:text-accent-400">
-            contato@ryze.com.br
+          <a href="mailto:comercial@ryzerh.com.br" className="text-accent-600 underline underline-offset-2 dark:text-accent-400">
+            comercial@ryzerh.com.br
           </a>
           . Responderemos dentro do prazo previsto em lei.
         </p>
@@ -205,8 +205,8 @@ export default function PrivacidadePage() {
         <p>
           Dúvidas, solicitações ou reclamações sobre o tratamento dos seus dados pessoais podem
           ser enviadas para{" "}
-          <a href="mailto:contato@ryze.com.br" className="text-accent-600 underline underline-offset-2 dark:text-accent-400">
-            contato@ryze.com.br
+          <a href="mailto:comercial@ryzerh.com.br" className="text-accent-600 underline underline-offset-2 dark:text-accent-400">
+            comercial@ryzerh.com.br
           </a>
           .
         </p>

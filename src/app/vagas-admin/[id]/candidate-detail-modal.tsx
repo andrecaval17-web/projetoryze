@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { X, ExternalLink, FileDown } from "lucide-react";
+import { X, ExternalLink, FileDown, Info } from "lucide-react";
 import { Select } from "@/components/ui/select";
 import { STAGES, type KanbanApplication } from "./kanban-board";
 import type { ApplicationStatus } from "../actions";
@@ -99,6 +99,16 @@ export function CandidateDetailModal({ application, onClose, onStatusChange }: C
           </Select>
         </div>
 
+        {application.jobEditedAfterApplication && (
+          <p className="mt-5 flex items-start gap-2 rounded-md bg-bg-surface-2 px-4 py-3 text-body-sm text-fg-muted">
+            <Info className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              A descrição ou os requisitos da vaga foram editados depois desta candidatura. A nota de aderência
+              foi calculada com o texto anterior — compare com cautela.
+            </span>
+          </p>
+        )}
+
         {application.scoreReasoning && (
           <div className="mt-6">
             <h3 className="font-display text-heading-sm font-semibold text-fg">Análise de aderência</h3>
@@ -113,7 +123,16 @@ export function CandidateDetailModal({ application, onClose, onStatusChange }: C
               {application.answers.map((item, index) => (
                 <div key={index}>
                   <dt className="text-body-sm font-medium text-fg">{item.question}</dt>
-                  <dd className="mt-1 text-body-sm leading-relaxed text-fg-muted">{item.answer}</dd>
+                  {/* Sem resposta só acontece quando a pergunta foi criada depois
+                      da candidatura — deixar em branco faria parecer que o
+                      candidato pulou uma pergunta obrigatória. */}
+                  {item.answer === null ? (
+                    <dd className="mt-1 text-body-sm italic leading-relaxed text-fg-muted">
+                      Pergunta adicionada à vaga depois desta candidatura — não foi apresentada a este candidato.
+                    </dd>
+                  ) : (
+                    <dd className="mt-1 text-body-sm leading-relaxed text-fg-muted">{item.answer}</dd>
+                  )}
                 </div>
               ))}
             </dl>

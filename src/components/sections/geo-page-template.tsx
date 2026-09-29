@@ -6,7 +6,7 @@ import { ResultsBand } from "./results-band";
 import { Button } from "@/components/ui/button";
 import { GEO_PAGE_TYPES, type GeoPageType } from "@/lib/geo/page-types";
 import type { GeoCity } from "@/lib/geo/cities";
-import { WHATSAPP_NUMBER } from "@/lib/whatsapp-number";
+import { WHATSAPP_NUMBER, buildContactWhatsappHref } from "@/lib/whatsapp-number";
 import { getSiteUrl } from "@/lib/site-url";
 
 interface GeoPageTemplateProps {
@@ -34,6 +34,16 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
   const h1 = pageType.buildH1(city);
   const pageUrl = `${getSiteUrl()}/${pageType.slug}/${city.uf}/${city.slug}`;
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(pageType.buildWhatsappMessage(city))}`;
+
+  // B2B (audience "b2b") sempre teve ctaHref "/contato" — formulário que
+  // vinha falhando no envio (erro reportado pelo André em 2026-08-12).
+  // Nesses casos o CTA principal passa a ir direto para o WhatsApp, com
+  // mensagem contextualizada pela página/cidade, e o botão secundário
+  // "Falar no WhatsApp" (que já fazia a mesma coisa) some pra não duplicar.
+  const isContatoCta = pageType.ctaHref === "/contato";
+  const primaryHref = isContatoCta
+    ? buildContactWhatsappHref(`${pageType.label} em ${city.name}, ${uf}`)
+    : pageType.ctaHref;
 
   const relatedCities = otherCities
     .filter((c) => !(c.uf === city.uf && c.slug === city.slug))
@@ -83,14 +93,23 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
 
       <PageHero eyebrow={pageType.eyebrow} title={h1} subtitle={pageType.buildIntro(city)}>
         <Button asChild size="lg">
-          <Link href={pageType.ctaHref}>{pageType.ctaLabel}</Link>
+          {isContatoCta ? (
+            <a href={primaryHref} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="h-4 w-4" />
+              {pageType.ctaLabel}
+            </a>
+          ) : (
+            <Link href={primaryHref}>{pageType.ctaLabel}</Link>
+          )}
         </Button>
-        <Button asChild size="lg" variant="secondary">
-          <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
-            <MessageCircle className="h-4 w-4" />
-            Falar no WhatsApp
-          </a>
-        </Button>
+        {!isContatoCta && (
+          <Button asChild size="lg" variant="secondary">
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="h-4 w-4" />
+              Falar no WhatsApp
+            </a>
+          </Button>
+        )}
       </PageHero>
 
       <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
@@ -163,7 +182,7 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
         title={`Pronto para começar em ${city.name}?`}
         subtitle={pageType.buildDescription(city)}
         ctaLabel={pageType.ctaLabel}
-        ctaHref={pageType.ctaHref}
+        ctaHref={primaryHref}
         tone="dark"
       />
     </>

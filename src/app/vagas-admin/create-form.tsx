@@ -92,7 +92,8 @@ export function CreateJobForm({ initialValues, sourceRequestId }: CreateJobFormP
           <div>
             <p className="font-display text-body-md font-semibold text-fg">Perguntas para o candidato</p>
             <p className="text-body-sm text-fg-muted">
-              Opcional — respondidas obrigatoriamente na página de candidatura. Não dá pra editar depois de criar a vaga.
+              Opcional — respondidas obrigatoriamente na página de candidatura. Dá pra adicionar ou remover depois,
+              em &ldquo;Editar vaga&rdquo;.
             </p>
           </div>
         </div>

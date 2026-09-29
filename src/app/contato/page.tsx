@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const info = [
-  { icon: Mail, label: "contato@ryze.com.br" },
+  { icon: Mail, label: "comercial@ryzerh.com.br" },
   { icon: Clock, label: "Seg. a sex., 9h às 18h" },
   { icon: MapPin, label: "Atendimento em todo o Brasil" },
 ];

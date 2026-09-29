@@ -24,7 +24,7 @@ export default async function VagaPipelinePage({
   const supabase = getSupabaseAdminClient();
   const { data: job } = await supabase
     .from("ats_job_postings")
-    .select("id, title")
+    .select("id, title, content_updated_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -40,13 +40,14 @@ export default async function VagaPipelinePage({
     .eq("job_posting_id", id)
     .order("score", { ascending: false, nullsFirst: false });
 
+  // Inclui perguntas arquivadas de propósito: elas saíram do formulário
+  // público, mas quem respondeu antes do arquivamento continua com a resposta
+  // guardada, e ela precisa aparecer aqui com o texto da pergunta.
   const { data: questions } = await supabase
     .from("ats_job_questions")
-    .select("id, question")
+    .select("id, question, created_at, archived_at")
     .eq("job_posting_id", id)
     .order("display_order", { ascending: true });
-
-  const questionMap = new Map((questions ?? []).map((q) => [q.id, q.question]));
 
   const applicationIds = (applications ?? []).map((app) => app.id);
   const { data: answers } =
@@ -57,13 +58,36 @@ export default async function VagaPipelinePage({
           .in("application_id", applicationIds)
       : { data: [] };
 
-  const answersByApplication = new Map<string, AnswerItem[]>();
+  const answerByApplicationQuestion = new Map<string, string>();
   for (const answer of answers ?? []) {
-    const question = questionMap.get(answer.question_id);
-    if (!question) continue;
-    const list = answersByApplication.get(answer.application_id) ?? [];
-    list.push({ question, answer: answer.answer });
-    answersByApplication.set(answer.application_id, list);
+    answerByApplicationQuestion.set(`${answer.application_id}:${answer.question_id}`, answer.answer);
+  }
+
+  /**
+   * Monta o Q&A de uma candidatura na ordem das perguntas da vaga.
+   *
+   * Uma pergunta sem resposta só vira uma linha ("não respondida") quando foi
+   * criada DEPOIS da candidatura — é o caso de o admin ter adicionado a
+   * pergunta com a vaga já no ar. Sem essa distinção, o recrutador não
+   * conseguiria diferenciar "o candidato pulou" de "a pergunta nem existia
+   * quando ele se candidatou", e nenhuma candidatura antiga deve parecer
+   * incompleta por causa de uma edição posterior.
+   */
+  function buildAnswers(applicationId: string, applicationCreatedAt: string): AnswerItem[] {
+    const items: AnswerItem[] = [];
+    for (const q of questions ?? []) {
+      const answer = answerByApplicationQuestion.get(`${applicationId}:${q.id}`);
+      if (answer !== undefined) {
+        items.push({ question: q.question, answer });
+        continue;
+      }
+      // Arquivada e sem resposta: não interessa a ninguém.
+      if (q.archived_at) continue;
+      if (new Date(q.created_at) > new Date(applicationCreatedAt)) {
+        items.push({ question: q.question, answer: null, addedAfterApplication: true });
+      }
+    }
+    return items;
   }
 
   const kanbanApplications: KanbanApplication[] = await Promise.all(
@@ -83,7 +107,12 @@ export default async function VagaPipelinePage({
         pipelineStatus: app.pipeline_status as ApplicationStatus,
         createdAt: app.created_at,
         candidateUserId: app.candidate_user_id,
-        answers: answersByApplication.get(app.id) ?? [],
+        answers: buildAnswers(app.id, app.created_at),
+        // A nota foi calculada contra a descrição/requisitos vigentes no envio
+        // (ver src/app/vagas/[slug]/actions.ts). Se o texto mudou depois, essa
+        // nota e as das candidaturas novas saíram de réguas diferentes — e o
+        // kanban ordena por nota.
+        jobEditedAfterApplication: new Date(job.content_updated_at) > new Date(app.created_at),
       };
     })
   );

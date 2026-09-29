@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { signOut } from "@/app/login/actions";
 import { cn } from "@/lib/utils";
+import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 import type { NavLink } from "./nav-links";
 
 interface NavbarMenuProps {
@@ -84,9 +85,17 @@ function AuthActions({ email, variant, onNavigate }: {
         </Link>
       </Button>
       <Button asChild variant="primary" size={size}>
-        <Link href="/contato" onClick={onNavigate}>
+        {/* Redireciona pro WhatsApp em vez do formulário /contato (que só
+            grava o lead sem notificar ninguém) — mesmo padrão aplicado em
+            footer/produtos/geo em 2026-08-12, faltava aqui (2026-09-03). */}
+        <a
+          href={buildContactWhatsappHref("os serviços da Ryze")}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onNavigate}
+        >
           Falar com especialista
-        </Link>
+        </a>
       </Button>
     </>
   );

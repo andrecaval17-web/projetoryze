@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LinkedinIcon, InstagramIcon } from "@/components/ui/social-icons";
 import { Logo } from "@/components/brand/logo";
 import { FoldDivider } from "@/components/brand/fold-divider";
+import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
 const columns = [
   {
@@ -32,9 +33,13 @@ const columns = [
     title: "Empresa",
     links: [
       { label: "Sobre", href: "/sobre" },
-      { label: "Contato", href: "/contato" },
+      // Redireciona pro WhatsApp em vez do formulário /contato (que ficava
+      // registrando lead sem notificar ninguém) — mesmo padrão das CTAs
+      // "Falar com um especialista" em 2026-08-12.
+      { label: "Contato", href: buildContactWhatsappHref("os serviços da Ryze") },
       { label: "Termos de Uso", href: "/termos" },
       { label: "Política de Privacidade", href: "/privacidade" },
+      { label: "Política de Cancelamento e Reembolso", href: "/politica-cancelamento" },
     ],
   },
 ];
@@ -53,16 +58,30 @@ export function Footer() {
                 {col.title}
               </h3>
               <ul className="flex flex-col gap-2.5">
-                {col.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-body-sm text-fg transition-ryze hover:text-accent-600 dark:hover:text-accent-400"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                {col.links.map((link) => {
+                  const isExternal = link.href.startsWith("http");
+                  return (
+                    <li key={link.href}>
+                      {isExternal ? (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-body-sm text-fg transition-ryze hover:text-accent-600 dark:hover:text-accent-400"
+                        >
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          className="text-body-sm text-fg transition-ryze hover:text-accent-600 dark:hover:text-accent-400"
+                        >
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
@@ -73,7 +92,7 @@ export function Footer() {
 
           <div className="flex items-center gap-4">
             <a
-              href="https://www.linkedin.com"
+              href="https://www.linkedin.com/company/ryze-consultoria/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Ryze no LinkedIn"
@@ -82,7 +101,7 @@ export function Footer() {
               <LinkedinIcon className="h-5 w-5" />
             </a>
             <a
-              href="https://www.instagram.com"
+              href="https://www.instagram.com/ryze.rh"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Ryze no Instagram"

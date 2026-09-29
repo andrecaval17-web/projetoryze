@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Search, Users2, LineChart, GraduationCap } from "lucide-react";
 import { PageHero } from "@/components/sections/page-hero";
 import { ResultsBand } from "@/components/sections/results-band";
@@ -7,6 +6,7 @@ import { CtaBand } from "@/components/sections/cta-band";
 import { ServiceCard } from "@/components/ui/service-card";
 import { Button } from "@/components/ui/button";
 import { buildPageMetadata } from "@/lib/seo";
+import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Consultoria em Recursos Humanos — Ryze",
@@ -75,7 +75,9 @@ export default function ConsultoriaPage() {
         subtitle="Atuamos nas frentes que mais impactam o negócio: quem você contrata, a cultura que retém, o que você paga e como desenvolve as pessoas."
       >
         <Button asChild size="lg">
-          <Link href="/contato">Falar com um especialista</Link>
+          <a href={buildContactWhatsappHref("a consultoria de RH da Ryze")} target="_blank" rel="noopener noreferrer">
+            Falar com um especialista
+          </a>
         </Button>
       </PageHero>
 
@@ -113,7 +115,7 @@ export default function ConsultoriaPage() {
         title="Não sabe por onde começar?"
         subtitle="Fale com um especialista e descubra qual frente traz mais resultado para o seu momento."
         ctaLabel="Falar com um especialista"
-        ctaHref="/contato"
+        ctaHref={buildContactWhatsappHref("a consultoria de RH da Ryze")}
         tone="dark"
       />
     </>

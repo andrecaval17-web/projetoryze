@@ -15,8 +15,14 @@ interface CtaBandProps {
  * Single, unambiguous CTA to close out a page — deliberately never paired
  * with a second competing action (see the Consultoria UX principle: one
  * CTA per service page, not several).
+ *
+ * `ctaHref` absoluto (ex: link de WhatsApp) abre em nova aba automaticamente
+ * — usado pelos CTAs "Falar com um especialista" que foram trocados de
+ * /contato (formulário com erro de envio) para wa.me em 2026-08-12.
  */
 export function CtaBand({ title, subtitle, ctaLabel, ctaHref, tone = "light", className }: CtaBandProps) {
+  const isExternal = ctaHref.startsWith("http");
+
   return (
     <section
       className={cn(
@@ -29,7 +35,11 @@ export function CtaBand({ title, subtitle, ctaLabel, ctaHref, tone = "light", cl
         <h2 className="font-display text-display-md font-semibold">{title}</h2>
         {subtitle && <p className="mt-3 text-body-lg text-fg-muted">{subtitle}</p>}
         <Button asChild size="lg" className="mt-8">
-          <Link href={ctaHref}>{ctaLabel}</Link>
+          {isExternal ? (
+            <a href={ctaHref} target="_blank" rel="noopener noreferrer">{ctaLabel}</a>
+          ) : (
+            <Link href={ctaHref}>{ctaLabel}</Link>
+          )}
         </Button>
       </div>
     </section>

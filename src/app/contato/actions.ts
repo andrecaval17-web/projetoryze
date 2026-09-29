@@ -64,7 +64,7 @@ export async function submitLead(
       status: "error",
       message:
         // TODO: trocar pelo e-mail/canal de contato real da Ryze
-        "Não foi possível enviar agora. Tente novamente em instantes ou escreva direto para contato@ryze.com.br.",
+        "Não foi possível enviar agora. Tente novamente em instantes ou escreva direto para comercial@ryzerh.com.br.",
     };
   }
 

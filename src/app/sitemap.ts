@@ -24,6 +24,7 @@ const routes: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: "/sobre", priority: 0.5, changeFrequency: "yearly" },
   { path: "/termos", priority: 0.2, changeFrequency: "yearly" },
   { path: "/privacidade", priority: 0.2, changeFrequency: "yearly" },
+  { path: "/politica-cancelamento", priority: 0.2, changeFrequency: "yearly" },
 ];
 
 // Só tipos com status "batch" entram no sitemap (ver GeoBatchStatus em

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { GraduationCap, Film, type LucideIcon } from "lucide-react";
 import { ProductsHero } from "@/components/sections/products-hero";
 import { AiDemoPanel } from "@/components/sections/ai-demo-panel";
@@ -7,6 +6,7 @@ import { ServiceCard } from "@/components/ui/service-card";
 import { CtaBand } from "@/components/sections/cta-band";
 import { Button } from "@/components/ui/button";
 import { buildPageMetadata } from "@/lib/seo";
+import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Produtos Ryze — Ryze Academy e Ryze HR Cultura",
@@ -14,6 +14,8 @@ export const metadata: Metadata = buildPageMetadata({
     "Dois produtos prontos: educação corporativa com IA que responde dúvidas 24/7, e gestão de cultura e engajamento com escuta contínua.",
   path: "/produtos",
 });
+
+const CONTATO_ESPECIALISTA = buildContactWhatsappHref("os produtos da Ryze");
 
 /** One line of the hub's "IA em ação" demo — a real, sourced highlight per product, not a candidate-matching mock. */
 function ProductActivityRow({
@@ -54,7 +56,9 @@ export default function ProdutosPage() {
         subtitle="Conhecimento que se perde e gente que sai antes da hora — os dois custam caro e raramente aparecem juntos numa planilha. A Ryze construiu uma solução pronta pra cada um."
         primaryCta={
           <Button asChild size="lg">
-            <Link href="/contato">Falar com um especialista</Link>
+            <a href={CONTATO_ESPECIALISTA} target="_blank" rel="noopener noreferrer">
+              Falar com um especialista
+            </a>
           </Button>
         }
         demo={
@@ -112,7 +116,7 @@ export default function ProdutosPage() {
         title="Não sabe qual dos dois encaixa melhor?"
         subtitle="Fale com um especialista e descubra qual produto resolve o problema mais caro do seu momento."
         ctaLabel="Falar com um especialista"
-        ctaHref="/contato"
+        ctaHref={CONTATO_ESPECIALISTA}
         tone="dark"
       />
     </>

@@ -29,12 +29,15 @@ export function DualCtaBand({
   tone = "dark",
   className,
 }: DualCtaBandProps) {
+  const isPrimaryExternal = primaryHref.startsWith("http");
+  const isSecondaryExternal = secondaryHref.startsWith("http");
+
   return (
     <section
       className={cn(
         tone === "dark" ? "dark bg-ink text-fg" : "bg-bg-surface text-fg",
         "px-5 py-20 text-center",
-        className
+        className,
       )}
     >
       <div className="mx-auto max-w-xl">
@@ -42,10 +45,22 @@ export function DualCtaBand({
         {subtitle && <p className="mt-3 text-body-lg text-fg-muted">{subtitle}</p>}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Button asChild size="lg">
-            <Link href={primaryHref}>{primaryLabel}</Link>
+            {isPrimaryExternal ? (
+              <a href={primaryHref} target="_blank" rel="noopener noreferrer">
+                {primaryLabel}
+              </a>
+            ) : (
+              <Link href={primaryHref}>{primaryLabel}</Link>
+            )}
           </Button>
           <Button asChild size="lg" variant="secondary">
-            <Link href={secondaryHref}>{secondaryLabel}</Link>
+            {isSecondaryExternal ? (
+              <a href={secondaryHref} target="_blank" rel="noopener noreferrer">
+                {secondaryLabel}
+              </a>
+            ) : (
+              <Link href={secondaryHref}>{secondaryLabel}</Link>
+            )}
           </Button>
         </div>
       </div>
