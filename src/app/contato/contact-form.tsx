@@ -15,9 +15,11 @@ const initialState: LeadFormState = { status: "idle" };
 export function ContactForm({
   initialProduct,
   initialIntent,
+  initialOrigin,
 }: {
   initialProduct?: string;
   initialIntent?: string;
+  initialOrigin?: string;
 }) {
   const [state, formAction, isPending] = useActionState(submitLead, initialState);
   const formRef = useRef<HTMLFormElement>(null);
@@ -32,6 +34,7 @@ export function ContactForm({
     <form ref={formRef} action={formAction} className="flex flex-col gap-5">
       {initialProduct && <input type="hidden" name="produto" value={initialProduct} />}
       {initialIntent && <input type="hidden" name="intencao" value={initialIntent} />}
+      {initialOrigin && <input type="hidden" name="origem" value={initialOrigin} />}
 
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField label="Nome completo" htmlFor="name" required>

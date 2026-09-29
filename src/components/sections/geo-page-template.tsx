@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, MessageCircle, Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { PageHero } from "./page-hero";
 import { CtaBand } from "./cta-band";
 import { ResultsBand } from "./results-band";
+import { GeoWhatsappLink } from "./geo-whatsapp-link";
 import { Button } from "@/components/ui/button";
 import { GEO_PAGE_TYPES, type GeoPageType } from "@/lib/geo/page-types";
 import type { GeoCity } from "@/lib/geo/cities";
@@ -32,8 +33,18 @@ const MAX_RELATED_CITIES = 8;
 export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplateProps) {
   const uf = city.uf.toUpperCase();
   const h1 = pageType.buildH1(city);
-  const pageUrl = `${getSiteUrl()}/${pageType.slug}/${city.uf}/${city.slug}`;
+  const originPath = `/${pageType.slug}/${city.uf}/${city.slug}`;
+  const pageUrl = `${getSiteUrl()}${originPath}`;
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(pageType.buildWhatsappMessage(city))}`;
+  // O CTA principal das páginas B2B sempre aponta pra /contato — carrega a
+  // página de origem na query string pro formulário gravar no source_page
+  // do lead de qual página geo o contato veio (ver contato/actions.ts).
+  // Tipos B2C linkam pra outros destinos (/cadastro, /vagas, etc.), que não
+  // têm esse conceito de origem — o href original segue intocado.
+  const ctaHref =
+    pageType.ctaHref === "/contato"
+      ? `/contato?origem=${encodeURIComponent(originPath)}`
+      : pageType.ctaHref;
 
   const relatedCities = otherCities
     .filter((c) => !(c.uf === city.uf && c.slug === city.slug))
@@ -83,14 +94,9 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
 
       <PageHero eyebrow={pageType.eyebrow} title={h1} subtitle={pageType.buildIntro(city)}>
         <Button asChild size="lg">
-          <Link href={pageType.ctaHref}>{pageType.ctaLabel}</Link>
+          <Link href={ctaHref}>{pageType.ctaLabel}</Link>
         </Button>
-        <Button asChild size="lg" variant="secondary">
-          <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
-            <MessageCircle className="h-4 w-4" />
-            Falar no WhatsApp
-          </a>
-        </Button>
+        <GeoWhatsappLink href={whatsappHref} page={originPath} serviceType={pageType.slug} />
       </PageHero>
 
       <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
@@ -163,7 +169,7 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
         title={`Pronto para começar em ${city.name}?`}
         subtitle={pageType.buildDescription(city)}
         ctaLabel={pageType.ctaLabel}
-        ctaHref={pageType.ctaHref}
+        ctaHref={ctaHref}
         tone="dark"
       />
     </>

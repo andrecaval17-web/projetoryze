@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Space_Grotesk, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { WhatsappButton } from "@/components/layout/whatsapp-button";
@@ -66,6 +67,7 @@ export default async function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <WhatsappButton />
+        <Analytics />
       </body>
     </html>
   );

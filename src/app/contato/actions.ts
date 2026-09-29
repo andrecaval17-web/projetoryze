@@ -1,6 +1,7 @@
 "use server";
 
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { isValidGeoOrigin } from "@/lib/geo/origin";
 
 export interface LeadFormState {
   status: "idle" | "success" | "error";
@@ -33,6 +34,8 @@ export async function submitLead(
   const consent = formData.get("consent");
   const produto = String(formData.get("produto") || "");
   const intencao = String(formData.get("intencao") || "");
+  const origemRaw = formData.get("origem");
+  const origem = typeof origemRaw === "string" ? origemRaw : undefined;
 
   if (!name || !email) {
     return { status: "error", message: "Preencha nome e e-mail." };
@@ -41,10 +44,14 @@ export async function submitLead(
     return { status: "error", message: "É necessário concordar em ser contatado." };
   }
 
+  // Nunca confia só no hidden field do client — revalida aqui contra o mesmo
+  // padrão de /[tipo]/[uf]/[cidade] antes de gravar em source_page.
   const productLabel = PRODUCT_LABELS[produto];
   const sourcePage = productLabel
     ? `/produtos/${produto} (${INTENT_LABELS[intencao] ?? "contato"})`
-    : "/contato";
+    : isValidGeoOrigin(origem)
+      ? `/contato (origem: ${origem})`
+      : "/contato";
 
   try {
     const supabase = await getSupabaseServerClient();

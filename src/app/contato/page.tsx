@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Mail, MapPin, Clock } from "lucide-react";
 import { PageHero } from "@/components/sections/page-hero";
 import { ContactForm } from "./contact-form";
+import { isValidGeoOrigin } from "@/lib/geo/origin";
 
 export const metadata: Metadata = {
   title: "Contato — Ryze",
@@ -27,15 +28,17 @@ const INTENT_LABELS: Record<string, string> = {
 export default async function ContatoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ produto?: string; intencao?: string }>;
+  searchParams: Promise<{ produto?: string; intencao?: string; origem?: string }>;
 }) {
-  const { produto, intencao } = await searchParams;
-  // Só aceita os valores que os próprios CTAs de /produtos/* geram — nunca
-  // reflete texto arbitrário da query string de volta pra tela.
+  const { produto, intencao, origem } = await searchParams;
+  // Só aceita os valores que os próprios CTAs de /produtos/* e das páginas
+  // geo geram — nunca reflete texto arbitrário da query string de volta pra
+  // tela.
   const productLabel = produto ? PRODUCT_LABELS[produto] : undefined;
   const intentLabel = intencao ? INTENT_LABELS[intencao] : undefined;
   const validProduct = productLabel ? produto : undefined;
   const validIntent = intentLabel ? intencao : undefined;
+  const validOrigin = isValidGeoOrigin(origem) ? origem : undefined;
 
   return (
     <>
@@ -78,7 +81,11 @@ export default async function ContatoPage({
                 {intentLabel && <> — {intentLabel}</>}
               </p>
             )}
-            <ContactForm initialProduct={validProduct} initialIntent={validIntent} />
+            <ContactForm
+              initialProduct={validProduct}
+              initialIntent={validIntent}
+              initialOrigin={validOrigin}
+            />
           </div>
         </div>
       </section>
