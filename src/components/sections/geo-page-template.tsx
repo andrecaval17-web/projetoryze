@@ -4,6 +4,7 @@ import { PageHero } from "./page-hero";
 import { CtaBand } from "./cta-band";
 import { ResultsBand } from "./results-band";
 import { Button } from "@/components/ui/button";
+import { GeoWhatsappCtaLink } from "./geo-whatsapp-cta-link";
 import { GEO_PAGE_TYPES, type GeoPageType } from "@/lib/geo/page-types";
 import type { GeoCity } from "@/lib/geo/cities";
 import { WHATSAPP_NUMBER, buildContactWhatsappHref } from "@/lib/whatsapp-number";
@@ -32,7 +33,8 @@ const MAX_RELATED_CITIES = 8;
 export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplateProps) {
   const uf = city.uf.toUpperCase();
   const h1 = pageType.buildH1(city);
-  const pageUrl = `${getSiteUrl()}/${pageType.slug}/${city.uf}/${city.slug}`;
+  const pagePath = `/${pageType.slug}/${city.uf}/${city.slug}`;
+  const pageUrl = `${getSiteUrl()}${pagePath}`;
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(pageType.buildWhatsappMessage(city))}`;
 
   // B2B (audience "b2b") sempre teve ctaHref "/contato" — formulário que
@@ -94,20 +96,36 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
       <PageHero eyebrow={pageType.eyebrow} title={h1} subtitle={pageType.buildIntro(city)}>
         <Button asChild size="lg">
           {isContatoCta ? (
-            <a href={primaryHref} target="_blank" rel="noopener noreferrer">
+            <GeoWhatsappCtaLink
+              href={primaryHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              pageType={pageType.slug}
+              uf={city.uf}
+              citySlug={city.slug}
+              pagePath={pagePath}
+            >
               <MessageCircle className="h-4 w-4" />
               {pageType.ctaLabel}
-            </a>
+            </GeoWhatsappCtaLink>
           ) : (
             <Link href={primaryHref}>{pageType.ctaLabel}</Link>
           )}
         </Button>
         {!isContatoCta && (
           <Button asChild size="lg" variant="secondary">
-            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
+            <GeoWhatsappCtaLink
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              pageType={pageType.slug}
+              uf={city.uf}
+              citySlug={city.slug}
+              pagePath={pagePath}
+            >
               <MessageCircle className="h-4 w-4" />
               Falar no WhatsApp
-            </a>
+            </GeoWhatsappCtaLink>
           </Button>
         )}
       </PageHero>
