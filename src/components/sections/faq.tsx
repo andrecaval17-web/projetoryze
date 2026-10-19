@@ -3,8 +3,8 @@ import { Plus } from "lucide-react";
 
 export interface FaqItem {
   question: string;
-  /** Normalmente uma string; aceita ReactNode pra casos como um aviso de
-   * conteúdo pendente (ver PendingContent) interpolado junto da resposta. */
+  /** Normalmente uma string; aceita ReactNode pra casos em que a resposta
+   * precisa interpolar outro elemento, não só texto puro. */
   answer: ReactNode;
 }
 
