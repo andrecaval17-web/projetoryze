@@ -4,7 +4,6 @@ import { ServicePageTemplate } from "@/components/sections/service-page-template
 import { PageHero } from "@/components/sections/page-hero";
 import { Faq, type FaqItem } from "@/components/sections/faq";
 import { Button } from "@/components/ui/button";
-import { PendingContent } from "@/components/ui/pending-content";
 import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
 import { RecruitmentLeadForm } from "./lead-form";
 import { buildPageMetadata } from "@/lib/seo";
@@ -22,14 +21,9 @@ const WHATS_INCLUDED_ITEMS = [
   "Lista final com os finalistas, em até 15 dias",
 ];
 
-const GUARANTEE_TEXT = "Se o profissional contratado sair nos primeiros 60 dias, fazemos a reposição sem custo.";
-const GUARANTEE_PENDING_NOTE = "condições da garantia";
+const GUARANTEE_TEXT =
+  "Se o profissional contratado sair nos primeiros 60 dias, fazemos a reposição sem custo. A reposição vale tanto se o profissional pedir demissão quanto se a empresa precisar desligá-lo, nos primeiros 60 dias. No caso de desligamento pela empresa, pedimos que o motivo seja justificado.";
 
-// `answer: ""` marca uma pergunta sem resposta real ainda definida (ver
-// GUARANTEE_PENDING_NOTE acima pro mesmo caso na seção de Garantia) — nunca
-// inventada aqui. O aviso visível só em desenvolvimento é interpolado na
-// hora de montar `faqItems` abaixo; os dados estruturados (FAQPage) excluem
-// qualquer pergunta sem resposta real, em qualquer ambiente.
 const faqData: { question: string; answer: string }[] = [
   {
     question: "Em quanto tempo recebo os candidatos finalistas?",
@@ -44,8 +38,9 @@ const faqData: { question: string; answer: string }[] = [
     answer: "Para vagas administrativas, financeiras, comerciais, operacionais e de RH, em vários níveis.",
   },
   {
-    question: "Como a Ryze cobra pelo serviço?",
-    answer: "",
+    question: "Quanto custa o serviço de recrutamento e seleção?",
+    answer:
+      "Cobramos um percentual sobre o salário da vaga. O percentual varia conforme o nível da posição e a quantidade de vagas abertas ao mesmo tempo. Depois de entender sua necessidade, enviamos a proposta.",
   },
   {
     question: "Vocês atendem empresas de fora do Espírito Santo?",
@@ -57,21 +52,16 @@ const faqData: { question: string; answer: string }[] = [
   },
 ];
 
-const faqItems: FaqItem[] = faqData.map((item) => ({
-  question: item.question,
-  answer: item.answer || <PendingContent note="modelo de cobrança" />,
-}));
+const faqItems: FaqItem[] = faqData;
 
 const faqJsonLd = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: faqData
-    .filter((item) => item.answer)
-    .map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: { "@type": "Answer", text: item.answer },
-    })),
+  mainEntity: faqData.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: item.answer },
+  })),
 };
 
 export const metadata: Metadata = buildPageMetadata({
@@ -223,10 +213,7 @@ export default function RecrutamentoESelecaoPage() {
 
           <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
             <h2 className="font-display text-display-md font-semibold text-fg">Garantia de reposição</h2>
-            <p className="mt-6 text-body-lg text-fg-muted">
-              {GUARANTEE_TEXT}
-              <PendingContent note={GUARANTEE_PENDING_NOTE} />
-            </p>
+            <p className="mt-6 text-body-lg text-fg-muted">{GUARANTEE_TEXT}</p>
           </section>
 
           <section className="border-t border-border px-5 py-16 lg:px-8">
