@@ -24,6 +24,19 @@ export interface RecruitmentLeadDetails {
   urgency: string;
 }
 
+// Todo campo abaixo é texto livre digitado pelo visitante — nunca
+// interpolar direto no HTML do e-mail sem escapar, senão um nome como
+// `<img src=x onerror=...>` ou um link disfarçado de cargo vira HTML/script
+// de verdade na caixa de entrada de quem recebe.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 /**
  * Aviso imediato pro time comercial de um novo lead de Recrutamento e
  * Seleção (formulário em /consultoria/recrutamento-e-selecao). Mesmo padrão
@@ -40,7 +53,14 @@ export async function sendRecruitmentLeadEmail(details: RecruitmentLeadDetails):
     return;
   }
 
+  // `urgencyLabel` vem de URGENCY_LABELS (catálogo fixo interno) — nunca do
+  // visitante, não precisa escapar. Os demais campos vêm direto do
+  // formulário público.
   const urgencyLabel = URGENCY_LABELS[details.urgency] ?? details.urgency;
+  const name = escapeHtml(details.name);
+  const company = escapeHtml(details.company);
+  const phone = escapeHtml(details.phone);
+  const role = escapeHtml(details.role);
 
   const { error } = await resend.emails.send({
     from: FROM_ADDRESS,
@@ -51,10 +71,10 @@ export async function sendRecruitmentLeadEmail(details: RecruitmentLeadDetails):
         <h1 style="font-size: 20px; margin-bottom: 12px;">Novo lead de Recrutamento e Seleção</h1>
         <p>Veio pelo formulário de <strong>/consultoria/recrutamento-e-selecao</strong>.</p>
         <table style="margin: 20px 0; border-collapse: collapse;">
-          <tr><td style="padding: 4px 12px 4px 0; color: #6B6864;">Nome</td><td style="padding: 4px 0;"><strong>${details.name}</strong></td></tr>
-          <tr><td style="padding: 4px 12px 4px 0; color: #6B6864;">Empresa</td><td style="padding: 4px 0;"><strong>${details.company}</strong></td></tr>
-          <tr><td style="padding: 4px 12px 4px 0; color: #6B6864;">WhatsApp</td><td style="padding: 4px 0;"><strong>${details.phone}</strong></td></tr>
-          <tr><td style="padding: 4px 12px 4px 0; color: #6B6864;">Cargo a contratar</td><td style="padding: 4px 0;"><strong>${details.role}</strong></td></tr>
+          <tr><td style="padding: 4px 12px 4px 0; color: #6B6864;">Nome</td><td style="padding: 4px 0;"><strong>${name}</strong></td></tr>
+          <tr><td style="padding: 4px 12px 4px 0; color: #6B6864;">Empresa</td><td style="padding: 4px 0;"><strong>${company}</strong></td></tr>
+          <tr><td style="padding: 4px 12px 4px 0; color: #6B6864;">WhatsApp</td><td style="padding: 4px 0;"><strong>${phone}</strong></td></tr>
+          <tr><td style="padding: 4px 12px 4px 0; color: #6B6864;">Cargo a contratar</td><td style="padding: 4px 0;"><strong>${role}</strong></td></tr>
           <tr><td style="padding: 4px 12px 4px 0; color: #6B6864;">Urgência</td><td style="padding: 4px 0;"><strong>${urgencyLabel}</strong></td></tr>
         </table>
         <p style="color: #6B6864; font-size: 13px;">Também salvo em /admin/leads.</p>

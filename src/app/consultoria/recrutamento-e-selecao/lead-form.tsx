@@ -39,21 +39,29 @@ export function RecruitmentLeadForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
+      {/* Honeypot: invisível e inalcançável por teclado pra um visitante
+          real (nenhum label, fora da ordem de tab, fora da tela) — um bot
+          que preenche todo input do formulário cai aqui. Ver actions.ts. */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+        <label htmlFor="website">Site</label>
+        <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
+
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField label="Nome completo" htmlFor="name" required>
-          <Input id="name" name="name" placeholder="Seu nome" required />
+          <Input id="name" name="name" placeholder="Seu nome" maxLength={120} required />
         </FormField>
         <FormField label="Empresa" htmlFor="company" required>
-          <Input id="company" name="company" placeholder="Nome da empresa" required />
+          <Input id="company" name="company" placeholder="Nome da empresa" maxLength={120} required />
         </FormField>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField label="WhatsApp" htmlFor="phone" required>
-          <Input id="phone" name="phone" type="tel" placeholder="(00) 00000-0000" required />
+          <Input id="phone" name="phone" type="tel" placeholder="(00) 00000-0000" maxLength={30} required />
         </FormField>
         <FormField label="Cargo a contratar" htmlFor="role" required>
-          <Input id="role" name="role" placeholder="Ex: Analista de RH" required />
+          <Input id="role" name="role" placeholder="Ex: Analista de RH" maxLength={120} required />
         </FormField>
       </div>
 
