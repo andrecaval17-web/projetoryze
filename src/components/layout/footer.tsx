@@ -2,7 +2,8 @@ import Link from "next/link";
 import { LinkedinIcon, InstagramIcon } from "@/components/ui/social-icons";
 import { Logo } from "@/components/brand/logo";
 import { FoldDivider } from "@/components/brand/fold-divider";
-import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
+import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
+import { buildContactWhatsappHref, isWhatsappHref } from "@/lib/whatsapp-number";
 
 const columns = [
   {
@@ -63,14 +64,26 @@ export function Footer() {
                   return (
                     <li key={link.href}>
                       {isExternal ? (
-                        <a
-                          href={link.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-body-sm text-fg transition-ryze hover:text-accent-600 dark:hover:text-accent-400"
-                        >
-                          {link.label}
-                        </a>
+                        isWhatsappHref(link.href) ? (
+                          <WhatsappClickLink
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            button="footer"
+                            className="text-body-sm text-fg transition-ryze hover:text-accent-600 dark:hover:text-accent-400"
+                          >
+                            {link.label}
+                          </WhatsappClickLink>
+                        ) : (
+                          <a
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-body-sm text-fg transition-ryze hover:text-accent-600 dark:hover:text-accent-400"
+                          >
+                            {link.label}
+                          </a>
+                        )
                       ) : (
                         <Link
                           href={link.href}

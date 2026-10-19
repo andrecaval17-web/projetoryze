@@ -23,3 +23,10 @@ export function buildDemoWhatsappHref(topic: string): string {
   const message = `Olá Ryze RH, quero agendar uma demonstração para conhecer ${topic}.`;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
+
+/** Usado por componentes genéricos (CtaBand, DualCtaBand) pra decidir se um
+ * `href` externo recebido via props deve virar um WhatsappClickLink
+ * rastreado em vez de um `<a>` comum. */
+export function isWhatsappHref(href: string): boolean {
+  return href.startsWith("https://wa.me/");
+}

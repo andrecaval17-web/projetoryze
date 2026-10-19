@@ -9,6 +9,7 @@ import { RoiCalculator } from "@/components/sections/roi-calculator";
 import { DualCtaBand } from "@/components/sections/dual-cta-band";
 import { FoldStepIndicator } from "@/components/brand/fold-step-indicator";
 import { Button } from "@/components/ui/button";
+import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
 import { buildPageMetadata } from "@/lib/seo";
 import { buildContactWhatsappHref, buildDemoWhatsappHref } from "@/lib/whatsapp-number";
 
@@ -35,16 +36,16 @@ export default function AcademyPage() {
         subtitle="Sua empresa já produz conhecimento todos os dias — em vídeos, documentos, treinamentos presenciais. O problema é que ele se perde. A Ryze Academy centraliza tudo numa plataforma onde cada colaborador aprende no seu ritmo e tira dúvidas com uma IA treinada no conteúdo real da sua empresa."
         primaryCta={
           <Button asChild size="lg">
-            <a href={CONTATO_ESPECIALISTA} target="_blank" rel="noopener noreferrer">
+            <WhatsappClickLink href={CONTATO_ESPECIALISTA} target="_blank" rel="noopener noreferrer" button="hero_primary">
               Falar com um especialista
-            </a>
+            </WhatsappClickLink>
           </Button>
         }
         secondaryCta={
           <Button asChild size="lg" variant="secondary">
-            <a href={CONTATO_DEMONSTRACAO} target="_blank" rel="noopener noreferrer">
+            <WhatsappClickLink href={CONTATO_DEMONSTRACAO} target="_blank" rel="noopener noreferrer" button="hero_secondary">
               Agendar demonstração
-            </a>
+            </WhatsappClickLink>
           </Button>
         }
       />

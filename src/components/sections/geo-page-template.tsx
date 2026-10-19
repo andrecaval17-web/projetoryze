@@ -4,7 +4,7 @@ import { PageHero } from "./page-hero";
 import { CtaBand } from "./cta-band";
 import { ResultsBand } from "./results-band";
 import { Button } from "@/components/ui/button";
-import { GeoWhatsappCtaLink } from "./geo-whatsapp-cta-link";
+import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
 import { GEO_PAGE_TYPES, type GeoPageType } from "@/lib/geo/page-types";
 import type { GeoCity } from "@/lib/geo/cities";
 import { WHATSAPP_NUMBER, buildContactWhatsappHref } from "@/lib/whatsapp-number";
@@ -96,36 +96,20 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
       <PageHero eyebrow={pageType.eyebrow} title={h1} subtitle={pageType.buildIntro(city)}>
         <Button asChild size="lg">
           {isContatoCta ? (
-            <GeoWhatsappCtaLink
-              href={primaryHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              pageType={pageType.slug}
-              uf={city.uf}
-              citySlug={city.slug}
-              pagePath={pagePath}
-            >
+            <WhatsappClickLink href={primaryHref} target="_blank" rel="noopener noreferrer" button="hero_primary">
               <MessageCircle className="h-4 w-4" />
               {pageType.ctaLabel}
-            </GeoWhatsappCtaLink>
+            </WhatsappClickLink>
           ) : (
             <Link href={primaryHref}>{pageType.ctaLabel}</Link>
           )}
         </Button>
         {!isContatoCta && (
           <Button asChild size="lg" variant="secondary">
-            <GeoWhatsappCtaLink
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              pageType={pageType.slug}
-              uf={city.uf}
-              citySlug={city.slug}
-              pagePath={pagePath}
-            >
+            <WhatsappClickLink href={whatsappHref} target="_blank" rel="noopener noreferrer" button="hero_secondary">
               <MessageCircle className="h-4 w-4" />
               Falar no WhatsApp
-            </GeoWhatsappCtaLink>
+            </WhatsappClickLink>
           </Button>
         )}
       </PageHero>

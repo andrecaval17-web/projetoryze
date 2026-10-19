@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
+import { isWhatsappHref } from "@/lib/whatsapp-number";
 import { cn } from "@/lib/utils";
 
 interface CtaBandProps {
@@ -36,7 +38,13 @@ export function CtaBand({ title, subtitle, ctaLabel, ctaHref, tone = "light", cl
         {subtitle && <p className="mt-3 text-body-lg text-fg-muted">{subtitle}</p>}
         <Button asChild size="lg" className="mt-8">
           {isExternal ? (
-            <a href={ctaHref} target="_blank" rel="noopener noreferrer">{ctaLabel}</a>
+            isWhatsappHref(ctaHref) ? (
+              <WhatsappClickLink href={ctaHref} target="_blank" rel="noopener noreferrer" button="cta_band">
+                {ctaLabel}
+              </WhatsappClickLink>
+            ) : (
+              <a href={ctaHref} target="_blank" rel="noopener noreferrer">{ctaLabel}</a>
+            )
           ) : (
             <Link href={ctaHref}>{ctaLabel}</Link>
           )}

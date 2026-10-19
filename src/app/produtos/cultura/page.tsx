@@ -10,6 +10,7 @@ import { CaseResults } from "@/components/sections/case-results";
 import { DualCtaBand } from "@/components/sections/dual-cta-band";
 import { FoldStepIndicator } from "@/components/brand/fold-step-indicator";
 import { Button } from "@/components/ui/button";
+import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
 import { buildPageMetadata } from "@/lib/seo";
 import { buildContactWhatsappHref, buildDemoWhatsappHref } from "@/lib/whatsapp-number";
 
@@ -36,16 +37,16 @@ export default function CulturaPage() {
         subtitle="O Brasil lidera o ranking mundial de rotatividade, o engajamento global está no menor nível desde 2020 — e cada saída evitável custa até dois salários anuais. A pergunta não é mais se a sua empresa pode investir em pesquisa de clima organizacional e engajamento. É quanto ela está perdendo por não investir direito."
         primaryCta={
           <Button asChild size="lg">
-            <a href={CONTATO_ESPECIALISTA} target="_blank" rel="noopener noreferrer">
+            <WhatsappClickLink href={CONTATO_ESPECIALISTA} target="_blank" rel="noopener noreferrer" button="hero_primary">
               Falar com um especialista
-            </a>
+            </WhatsappClickLink>
           </Button>
         }
         secondaryCta={
           <Button asChild size="lg" variant="secondary">
-            <a href={CONTATO_DEMONSTRACAO} target="_blank" rel="noopener noreferrer">
+            <WhatsappClickLink href={CONTATO_DEMONSTRACAO} target="_blank" rel="noopener noreferrer" button="hero_secondary">
               Agendar demonstração
-            </a>
+            </WhatsappClickLink>
           </Button>
         }
       />

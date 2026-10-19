@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
+import { isWhatsappHref } from "@/lib/whatsapp-number";
 import { cn } from "@/lib/utils";
 
 interface DualCtaBandProps {
@@ -46,18 +48,30 @@ export function DualCtaBand({
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Button asChild size="lg">
             {isPrimaryExternal ? (
-              <a href={primaryHref} target="_blank" rel="noopener noreferrer">
-                {primaryLabel}
-              </a>
+              isWhatsappHref(primaryHref) ? (
+                <WhatsappClickLink href={primaryHref} target="_blank" rel="noopener noreferrer" button="dual_cta_primary">
+                  {primaryLabel}
+                </WhatsappClickLink>
+              ) : (
+                <a href={primaryHref} target="_blank" rel="noopener noreferrer">
+                  {primaryLabel}
+                </a>
+              )
             ) : (
               <Link href={primaryHref}>{primaryLabel}</Link>
             )}
           </Button>
           <Button asChild size="lg" variant="secondary">
             {isSecondaryExternal ? (
-              <a href={secondaryHref} target="_blank" rel="noopener noreferrer">
-                {secondaryLabel}
-              </a>
+              isWhatsappHref(secondaryHref) ? (
+                <WhatsappClickLink href={secondaryHref} target="_blank" rel="noopener noreferrer" button="dual_cta_secondary">
+                  {secondaryLabel}
+                </WhatsappClickLink>
+              ) : (
+                <a href={secondaryHref} target="_blank" rel="noopener noreferrer">
+                  {secondaryLabel}
+                </a>
+              )
             ) : (
               <Link href={secondaryHref}>{secondaryLabel}</Link>
             )}

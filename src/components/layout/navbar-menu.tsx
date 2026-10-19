@@ -6,6 +6,7 @@ import { Menu, X, UserRound, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { signOut } from "@/app/login/actions";
+import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
 import { cn } from "@/lib/utils";
 import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 import type { NavLink } from "./nav-links";
@@ -88,14 +89,15 @@ function AuthActions({ email, variant, onNavigate }: {
         {/* Redireciona pro WhatsApp em vez do formulário /contato (que só
             grava o lead sem notificar ninguém) — mesmo padrão aplicado em
             footer/produtos/geo em 2026-08-12, faltava aqui (2026-09-03). */}
-        <a
+        <WhatsappClickLink
           href={buildContactWhatsappHref("os serviços da Ryze")}
           target="_blank"
           rel="noopener noreferrer"
           onClick={onNavigate}
+          button="navbar"
         >
           Falar com especialista
-        </a>
+        </WhatsappClickLink>
       </Button>
     </>
   );
