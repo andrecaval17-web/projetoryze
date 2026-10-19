@@ -3,6 +3,7 @@
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendRecruitmentLeadEmail } from "@/lib/email/recruitment-lead";
+import { getGeoCity } from "@/lib/geo/cities";
 
 export interface RecruitmentLeadState {
   status: "idle" | "success" | "error";
@@ -11,7 +12,41 @@ export interface RecruitmentLeadState {
 
 const URGENCY_VALUES = ["imediata", "ate_30_dias", "pesquisando"] as const;
 
-const SOURCE_PAGE = "/consultoria/recrutamento-e-selecao";
+const NATIONAL_SOURCE_PAGE = "/consultoria/recrutamento-e-selecao";
+
+// Mesmo slug de GEO_PAGE_TYPES pra esse tipo (src/lib/geo/page-types.ts) —
+// hardcoded aqui (em vez de importar o catálogo geo inteiro) porque essa
+// action só precisa reconhecer este único tipo de página geo.
+const GEO_ORIGIN_PATTERN = /^\/recrutamento-e-selecao\/([a-z]{2})\/([a-z0-9-]+)$/;
+
+/**
+ * Resolve o `source_page` real a partir do que o formulário mandou em
+ * `origin_path` — nunca confia nesse valor direto (vem de um hidden
+ * field, controlado pelo client). Só duas formas são aceitas: a rota
+ * nacional exata, ou `/recrutamento-e-selecao/{uf}/{cidade}` com uf/cidade
+ * batendo numa cidade ativa de `geo_cities` (mesma checagem de
+ * `getGeoCity` que a própria página geo usa pra existir). Qualquer outro
+ * valor — formato errado, cidade inexistente ou inativa, campo ausente —
+ * cai no fixo da rota nacional, sem erro pro visitante.
+ */
+async function resolveLeadSource(
+  originPath: string
+): Promise<{ sourcePage: string; cityLabel: string | null }> {
+  if (originPath === NATIONAL_SOURCE_PAGE) {
+    return { sourcePage: NATIONAL_SOURCE_PAGE, cityLabel: null };
+  }
+
+  const match = GEO_ORIGIN_PATTERN.exec(originPath);
+  if (match) {
+    const [, uf, citySlug] = match;
+    const city = await getGeoCity(uf, citySlug);
+    if (city) {
+      return { sourcePage: originPath, cityLabel: `${city.name}/${city.uf.toUpperCase()}` };
+    }
+  }
+
+  return { sourcePage: NATIONAL_SOURCE_PAGE, cityLabel: null };
+}
 
 // Limites generosos pra formulário real (nunca o esperado de alguém
 // preenchendo à mão), só pra rejeitar payload abusivo antes de chegar no
@@ -75,6 +110,11 @@ export async function submitRecruitmentLead(
     return { status: "error", message: "Selecione a urgência da contratação." };
   }
 
+  const originPathRaw = formData.get("origin_path");
+  const { sourcePage, cityLabel } = await resolveLeadSource(
+    typeof originPathRaw === "string" ? originPathRaw : NATIONAL_SOURCE_PAGE
+  );
+
   try {
     const admin = getSupabaseAdminClient();
     const since = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
@@ -106,8 +146,8 @@ export async function submitRecruitmentLead(
       email: null,
       phone,
       company,
-      message: `Cargo a contratar: ${role}\nUrgência: ${urgency}`,
-      source_page: SOURCE_PAGE,
+      message: `${cityLabel ? `Cidade: ${cityLabel}\n` : ""}Cargo a contratar: ${role}\nUrgência: ${urgency}`,
+      source_page: sourcePage,
     });
     if (error) throw error;
   } catch (err) {

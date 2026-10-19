@@ -5,10 +5,17 @@ import { CtaBand } from "./cta-band";
 import { ResultsBand } from "./results-band";
 import { Button } from "@/components/ui/button";
 import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
+import { RecruitmentLeadForm } from "@/app/consultoria/recrutamento-e-selecao/lead-form";
 import { GEO_PAGE_TYPES, type GeoPageType } from "@/lib/geo/page-types";
 import type { GeoCity } from "@/lib/geo/cities";
 import { WHATSAPP_NUMBER, buildContactWhatsappHref } from "@/lib/whatsapp-number";
+import { JOBS_CONDUCTED_TEXT, GUARANTEE_TEXT } from "@/lib/recruitment-content";
 import { getSiteUrl } from "@/lib/site-url";
+
+/** Único tipo geo que, por enquanto, leva o conteúdo e o formulário de lead
+ * da página nacional (/consultoria/recrutamento-e-selecao) — os demais
+ * tipos (B2C e os outros B2B) continuam exatamente como eram. */
+const RECRUITMENT_TYPE_SLUG = "recrutamento-e-selecao";
 
 interface GeoPageTemplateProps {
   city: GeoCity;
@@ -127,6 +134,34 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
           ))}
         </ul>
       </section>
+
+      {pageType.slug === RECRUITMENT_TYPE_SLUG && (
+        <>
+          <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
+            <h2 className="font-display text-display-md font-semibold text-fg">Vagas que já conduzimos</h2>
+            <p className="mt-6 text-body-lg text-fg-muted">{JOBS_CONDUCTED_TEXT}</p>
+          </section>
+
+          <section className="border-y border-border bg-bg-surface px-5 py-16 lg:px-8">
+            <div className="mx-auto max-w-3xl">
+              <h2 className="font-display text-display-md font-semibold text-fg">Garantia de reposição</h2>
+              <p className="mt-6 text-body-lg text-fg-muted">{GUARANTEE_TEXT}</p>
+            </div>
+          </section>
+
+          <section id="formulario-contato" className="mx-auto max-w-xl px-5 py-16 lg:px-8">
+            <h2 className="text-center font-display text-display-md font-semibold text-fg">
+              Deixe seus dados que entramos em contato
+            </h2>
+            <p className="mt-2 text-center text-body-sm text-fg-muted">
+              Preencha abaixo — nosso time comercial responde o mais rápido possível.
+            </p>
+            <div className="mt-8 rounded-xl border border-border bg-bg p-6 sm:p-8">
+              <RecruitmentLeadForm originPath={pagePath} />
+            </div>
+          </section>
+        </>
+      )}
 
       {pageType.results && pageType.results.length > 0 && (
         <ResultsBand

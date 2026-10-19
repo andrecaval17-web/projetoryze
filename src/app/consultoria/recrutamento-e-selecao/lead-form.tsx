@@ -14,7 +14,7 @@ const initialState: RecruitmentLeadState = { status: "idle" };
 
 const WHATSAPP_HREF = buildContactWhatsappHref("Recrutamento e Seleção");
 
-export function RecruitmentLeadForm() {
+export function RecruitmentLeadForm({ originPath }: { originPath?: string } = {}) {
   const [state, formAction, isPending] = useActionState(submitRecruitmentLead, initialState);
 
   if (state.status === "success") {
@@ -46,6 +46,8 @@ export function RecruitmentLeadForm() {
         <label htmlFor="website">Site</label>
         <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
+
+      {originPath && <input type="hidden" name="origin_path" value={originPath} />}
 
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField label="Nome completo" htmlFor="name" required>
