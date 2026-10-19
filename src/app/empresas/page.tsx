@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FoldCorner } from "@/components/brand/fold-corner";
+import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
 import { buildPageMetadata } from "@/lib/seo";
 import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
@@ -47,9 +48,14 @@ export default function EmpresasPage() {
         subtitle="Consultoria estratégica e produtos de inteligência artificial que aceleram recrutamento, cultura e desenvolvimento — para o seu time contratar melhor e mais rápido."
         primaryCta={
           <Button asChild size="lg">
-            <a href={buildContactWhatsappHref("os serviços da Ryze para empresas")} target="_blank" rel="noopener noreferrer">
+            <WhatsappClickLink
+              href={buildContactWhatsappHref("os serviços da Ryze para empresas")}
+              target="_blank"
+              rel="noopener noreferrer"
+              button="hero_primary"
+            >
               Falar com um especialista
-            </a>
+            </WhatsappClickLink>
           </Button>
         }
         stats={[

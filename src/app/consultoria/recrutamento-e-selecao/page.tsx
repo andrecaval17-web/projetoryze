@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
-import { Award, Cpu, Timer, Target, Layers, ShieldCheck } from "lucide-react";
+import { Award, Cpu, Timer, Target, Layers, ShieldCheck, MessageCircle } from "lucide-react";
 import { ServicePageTemplate } from "@/components/sections/service-page-template";
+import { PageHero } from "@/components/sections/page-hero";
+import { Button } from "@/components/ui/button";
+import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
+import { RecruitmentLeadForm } from "./lead-form";
 import { buildPageMetadata } from "@/lib/seo";
 import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
+
+const WHATSAPP_HREF = buildContactWhatsappHref("Recrutamento e Seleção");
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Recrutamento e Seleção — Ryze Consultoria",
@@ -17,6 +23,39 @@ export default function RecrutamentoESelecaoPage() {
       eyebrow="Recrutamento e Seleção"
       title="Os candidatos certos, mais rápido que o mercado"
       subtitle="Recrutadores sêniores e tecnologia no processo para entregar finalistas qualificados em até 15 dias — de vagas operacionais a posições estratégicas."
+      hero={
+        <>
+          <PageHero
+            eyebrow="Recrutamento e Seleção"
+            title="Os candidatos certos, mais rápido que o mercado"
+            subtitle="Recrutadores sêniores e tecnologia no processo para entregar finalistas qualificados em até 15 dias — de vagas operacionais a posições estratégicas."
+          >
+            <Button asChild size="lg">
+              <a href="#formulario-contato">Quero contratar mais rápido</a>
+            </Button>
+            <Button asChild size="lg" variant="secondary">
+              <WhatsappClickLink href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" button="hero_secondary">
+                <MessageCircle className="h-4 w-4" />
+                Falar no WhatsApp
+              </WhatsappClickLink>
+            </Button>
+          </PageHero>
+
+          <section id="formulario-contato" className="border-b border-border bg-bg-surface px-5 py-16 lg:px-8">
+            <div className="mx-auto max-w-xl">
+              <h2 className="text-center font-display text-display-md font-semibold text-fg">
+                Deixe seus dados que entramos em contato
+              </h2>
+              <p className="mt-2 text-center text-body-sm text-fg-muted">
+                Preencha abaixo — nosso time comercial responde o mais rápido possível.
+              </p>
+              <div className="mt-8 rounded-xl border border-border bg-bg p-6 sm:p-8">
+                <RecruitmentLeadForm />
+              </div>
+            </div>
+          </section>
+        </>
+      }
       highlights={[
         { value: "+10 anos", label: "de experiência dos nossos recrutadores" },
         { value: "até 15 dias", label: "para apresentar candidatos finalistas" },
@@ -97,7 +136,7 @@ export default function RecrutamentoESelecaoPage() {
       ]}
       ctaLabel="Pronto para contratar melhor e mais rápido?"
       ctaSubtitle="Fale com um especialista e receba finalistas qualificados em até 15 dias."
-      ctaHref={buildContactWhatsappHref("Recrutamento e Seleção")}
+      ctaHref={WHATSAPP_HREF}
     />
   );
 }

@@ -77,8 +77,9 @@ export default async function AdminLeadsPage({
                 <td className="px-4 py-3 font-medium text-fg">{lead.name}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-col">
-                    <span>{lead.email}</span>
+                    {lead.email && <span>{lead.email}</span>}
                     {lead.phone && <span className="text-caption text-fg-muted">{lead.phone}</span>}
+                    {!lead.email && !lead.phone && <span className="text-fg-muted">—</span>}
                   </div>
                 </td>
                 <td className="px-4 py-3 text-fg-muted">{lead.company ?? "—"}</td>

@@ -5,6 +5,7 @@ import { AiDemoPanel } from "@/components/sections/ai-demo-panel";
 import { ServiceCard } from "@/components/ui/service-card";
 import { CtaBand } from "@/components/sections/cta-band";
 import { Button } from "@/components/ui/button";
+import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
 import { buildPageMetadata } from "@/lib/seo";
 import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
@@ -56,9 +57,9 @@ export default function ProdutosPage() {
         subtitle="Conhecimento que se perde e gente que sai antes da hora — os dois custam caro e raramente aparecem juntos numa planilha. A Ryze construiu uma solução pronta pra cada um."
         primaryCta={
           <Button asChild size="lg">
-            <a href={CONTATO_ESPECIALISTA} target="_blank" rel="noopener noreferrer">
+            <WhatsappClickLink href={CONTATO_ESPECIALISTA} target="_blank" rel="noopener noreferrer" button="hero_primary">
               Falar com um especialista
-            </a>
+            </WhatsappClickLink>
           </Button>
         }
         demo={

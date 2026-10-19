@@ -5,6 +5,7 @@ import { ResultsBand } from "@/components/sections/results-band";
 import { CtaBand } from "@/components/sections/cta-band";
 import { ServiceCard } from "@/components/ui/service-card";
 import { Button } from "@/components/ui/button";
+import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
 import { buildPageMetadata } from "@/lib/seo";
 import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
@@ -75,9 +76,14 @@ export default function ConsultoriaPage() {
         subtitle="Atuamos nas frentes que mais impactam o negócio: quem você contrata, a cultura que retém, o que você paga e como desenvolve as pessoas."
       >
         <Button asChild size="lg">
-          <a href={buildContactWhatsappHref("a consultoria de RH da Ryze")} target="_blank" rel="noopener noreferrer">
+          <WhatsappClickLink
+            href={buildContactWhatsappHref("a consultoria de RH da Ryze")}
+            target="_blank"
+            rel="noopener noreferrer"
+            button="hero_primary"
+          >
             Falar com um especialista
-          </a>
+          </WhatsappClickLink>
         </Button>
       </PageHero>
 
