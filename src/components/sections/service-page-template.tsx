@@ -33,6 +33,8 @@ interface ServicePageTemplateProps {
   resultsTitle: string;
   resultsSubtitle?: string;
   results: ResultStat[];
+  /** Conteúdo extra (ex: prova social, garantia, FAQ) entre os resultados de mercado e o CTA final — opcional, não afeta páginas que não passam nada aqui. */
+  beforeCta?: ReactNode;
   ctaLabel: string;
   ctaHref: string;
   ctaSubtitle?: string;
@@ -60,6 +62,7 @@ export function ServicePageTemplate({
   resultsTitle,
   resultsSubtitle,
   results,
+  beforeCta,
   ctaLabel,
   ctaHref,
   ctaSubtitle,
@@ -128,6 +131,8 @@ export function ServicePageTemplate({
       </section>
 
       <ResultsBand title={resultsTitle} subtitle={resultsSubtitle} stats={results} />
+
+      {beforeCta}
 
       <CtaBand title={ctaLabel} subtitle={ctaSubtitle} ctaLabel="Falar com um especialista" ctaHref={ctaHref} tone="dark" />
     </>
