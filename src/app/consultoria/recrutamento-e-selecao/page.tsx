@@ -1,14 +1,78 @@
 import type { Metadata } from "next";
-import { Award, Cpu, Timer, Target, Layers, ShieldCheck, MessageCircle } from "lucide-react";
+import { Award, Cpu, Timer, Target, Layers, ShieldCheck, MessageCircle, Check } from "lucide-react";
 import { ServicePageTemplate } from "@/components/sections/service-page-template";
 import { PageHero } from "@/components/sections/page-hero";
+import { Faq, type FaqItem } from "@/components/sections/faq";
 import { Button } from "@/components/ui/button";
+import { PendingContent } from "@/components/ui/pending-content";
 import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
 import { RecruitmentLeadForm } from "./lead-form";
 import { buildPageMetadata } from "@/lib/seo";
 import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
 
 const WHATSAPP_HREF = buildContactWhatsappHref("Recrutamento e Seleção");
+
+const JOBS_CONDUCTED_TEXT =
+  "Da área administrativa e financeira à operação e às vendas. Alguns exemplos recentes: Analista de RH Sênior, Analista Financeiro Pleno, Vendedor Interno, Operador de Expedição e Operador de Produção. A maioria das vagas foi fechada em menos de duas semanas.";
+
+const WHATS_INCLUDED_ITEMS = [
+  "Divulgação da vaga e atração de candidatos",
+  "Triagem dos currículos com apoio de inteligência artificial",
+  "Entrevistas conduzidas por recrutadores experientes",
+  "Lista final com os finalistas, em até 15 dias",
+];
+
+const GUARANTEE_TEXT = "Se o profissional contratado sair nos primeiros 60 dias, fazemos a reposição sem custo.";
+const GUARANTEE_PENDING_NOTE = "condições da garantia";
+
+// `answer: ""` marca uma pergunta sem resposta real ainda definida (ver
+// GUARANTEE_PENDING_NOTE acima pro mesmo caso na seção de Garantia) — nunca
+// inventada aqui. O aviso visível só em desenvolvimento é interpolado na
+// hora de montar `faqItems` abaixo; os dados estruturados (FAQPage) excluem
+// qualquer pergunta sem resposta real, em qualquer ambiente.
+const faqData: { question: string; answer: string }[] = [
+  {
+    question: "Em quanto tempo recebo os candidatos finalistas?",
+    answer: "Em até 15 dias. A maioria das vagas que conduzimos foi fechada em menos de duas semanas.",
+  },
+  {
+    question: "O que acontece se o profissional sair logo depois de contratado?",
+    answer: "Se isso ocorrer nos primeiros 60 dias, a reposição é gratuita.",
+  },
+  {
+    question: "Para quais tipos de vaga vocês atendem?",
+    answer: "Para vagas administrativas, financeiras, comerciais, operacionais e de RH, em vários níveis.",
+  },
+  {
+    question: "Como a Ryze cobra pelo serviço?",
+    answer: "",
+  },
+  {
+    question: "Vocês atendem empresas de fora do Espírito Santo?",
+    answer: "Sim, atendemos empresas em todo o Brasil.",
+  },
+  {
+    question: "Como começo?",
+    answer: "Preencha o formulário desta página com o cargo que precisa contratar. Nosso time comercial entra em contato com você.",
+  },
+];
+
+const faqItems: FaqItem[] = faqData.map((item) => ({
+  question: item.question,
+  answer: item.answer || <PendingContent note="modelo de cobrança" />,
+}));
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqData
+    .filter((item) => item.answer)
+    .map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+};
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Recrutamento e Seleção — Ryze Consultoria",
@@ -134,6 +198,49 @@ export default function RecrutamentoESelecaoPage() {
           source: "U.S. Department of Labor",
         },
       ]}
+      beforeCta={
+        <>
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+
+          <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
+            <h2 className="font-display text-display-md font-semibold text-fg">Vagas que já conduzimos</h2>
+            <p className="mt-6 text-body-lg text-fg-muted">{JOBS_CONDUCTED_TEXT}</p>
+          </section>
+
+          <section className="border-y border-border bg-bg-surface px-5 py-16 lg:px-8">
+            <div className="mx-auto max-w-3xl">
+              <h2 className="font-display text-display-md font-semibold text-fg">O que está incluído no processo</h2>
+              <ul className="mt-6 flex flex-col gap-4">
+                {WHATS_INCLUDED_ITEMS.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-body-lg text-fg-muted">
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-accent-600 dark:text-accent-400" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
+            <h2 className="font-display text-display-md font-semibold text-fg">Garantia de reposição</h2>
+            <p className="mt-6 text-body-lg text-fg-muted">
+              {GUARANTEE_TEXT}
+              <PendingContent note={GUARANTEE_PENDING_NOTE} />
+            </p>
+          </section>
+
+          <section className="border-t border-border px-5 py-16 lg:px-8">
+            <div className="mx-auto max-w-3xl">
+              <h2 className="text-center font-display text-display-md font-semibold text-fg">
+                Perguntas frequentes
+              </h2>
+              <div className="mt-10">
+                <Faq items={faqItems} />
+              </div>
+            </div>
+          </section>
+        </>
+      }
       ctaLabel="Pronto para contratar melhor e mais rápido?"
       ctaSubtitle="Fale com um especialista e receba finalistas qualificados em até 15 dias."
       ctaHref={WHATSAPP_HREF}
