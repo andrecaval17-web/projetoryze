@@ -8,11 +8,9 @@ import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
 import { RecruitmentLeadForm } from "./lead-form";
 import { buildPageMetadata } from "@/lib/seo";
 import { buildContactWhatsappHref } from "@/lib/whatsapp-number";
+import { JOBS_CONDUCTED_TEXT, GUARANTEE_TEXT } from "@/lib/recruitment-content";
 
 const WHATSAPP_HREF = buildContactWhatsappHref("Recrutamento e Seleção");
-
-const JOBS_CONDUCTED_TEXT =
-  "Da área administrativa e financeira à operação e às vendas. Alguns exemplos recentes: Analista de RH Sênior, Analista Financeiro Pleno, Vendedor Interno, Operador de Expedição e Operador de Produção. A maioria das vagas foi fechada em menos de duas semanas.";
 
 const WHATS_INCLUDED_ITEMS = [
   "Divulgação da vaga e atração de candidatos",
@@ -20,9 +18,6 @@ const WHATS_INCLUDED_ITEMS = [
   "Entrevistas conduzidas por recrutadores experientes",
   "Lista final com os finalistas, em até 15 dias",
 ];
-
-const GUARANTEE_TEXT =
-  "Se o profissional contratado sair nos primeiros 60 dias, fazemos a reposição sem custo. A reposição vale tanto se o profissional pedir demissão quanto se a empresa precisar desligá-lo, nos primeiros 60 dias. No caso de desligamento pela empresa, pedimos que o motivo seja justificado.";
 
 const faqData: { question: string; answer: string }[] = [
   {
