@@ -163,19 +163,21 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
         )}
       </PageHero>
 
-      <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
-        <h2 className="font-display text-display-md font-semibold text-fg">
-          Como funciona em {city.name}
-        </h2>
-        <ul className="mt-6 flex flex-col gap-4">
-          {pageType.buildBenefits(city).map((benefit) => (
-            <li key={benefit} className="flex items-start gap-3 text-body-lg text-fg-muted">
-              <Check className="mt-1 h-4 w-4 shrink-0 text-accent-600 dark:text-accent-400" />
-              {benefit}
-            </li>
-          ))}
-        </ul>
-      </section>
+      {!isRecruitmentType && (
+        <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
+          <h2 className="font-display text-display-md font-semibold text-fg">
+            Como funciona em {city.name}
+          </h2>
+          <ul className="mt-6 flex flex-col gap-4">
+            {pageType.buildBenefits(city).map((benefit) => (
+              <li key={benefit} className="flex items-start gap-3 text-body-lg text-fg-muted">
+                <Check className="mt-1 h-4 w-4 shrink-0 text-accent-600 dark:text-accent-400" />
+                {benefit}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {isRecruitmentType && (
         <>
