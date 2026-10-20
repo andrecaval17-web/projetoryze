@@ -6,6 +6,8 @@ interface PageHeroProps {
   title: string;
   subtitle?: string;
   className?: string;
+  /** Conteúdo extra entre o subtítulo e a linha de botões (ex: uma linha curta de credenciais) — opcional, não afeta páginas que não passam nada aqui. */
+  afterSubtitle?: React.ReactNode;
   children?: React.ReactNode;
 }
 
@@ -14,7 +16,7 @@ interface PageHeroProps {
  * Contato). Kept deliberately calm — the "tech" energy is reserved for the
  * dark hero / AI touchpoints, this is the "humano, acolhedor" register.
  */
-export function PageHero({ eyebrow, title, subtitle, className, children }: PageHeroProps) {
+export function PageHero({ eyebrow, title, subtitle, className, afterSubtitle, children }: PageHeroProps) {
   return (
     <section className={cn("border-b border-border px-5 py-16 text-center lg:py-20", className)}>
       <div className="mx-auto max-w-3xl">
@@ -25,6 +27,7 @@ export function PageHero({ eyebrow, title, subtitle, className, children }: Page
         )}
         <h1 className="font-display text-display-xl font-semibold text-fg">{title}</h1>
         {subtitle && <p className="mt-4 text-body-lg text-fg-muted">{subtitle}</p>}
+        {afterSubtitle}
         {children && <div className="mt-8 flex flex-wrap items-center justify-center gap-3">{children}</div>}
       </div>
     </section>

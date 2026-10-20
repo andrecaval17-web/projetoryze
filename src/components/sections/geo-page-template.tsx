@@ -3,13 +3,23 @@ import { ArrowRight, MessageCircle, Check } from "lucide-react";
 import { PageHero } from "./page-hero";
 import { CtaBand } from "./cta-band";
 import { ResultsBand } from "./results-band";
+import { Faq } from "./faq";
+import { FoldStepIndicator } from "@/components/brand/fold-step-indicator";
 import { Button } from "@/components/ui/button";
 import { WhatsappClickLink } from "@/components/whatsapp/whatsapp-click-link";
 import { RecruitmentLeadForm } from "@/app/consultoria/recrutamento-e-selecao/lead-form";
 import { GEO_PAGE_TYPES, type GeoPageType } from "@/lib/geo/page-types";
 import type { GeoCity } from "@/lib/geo/cities";
 import { WHATSAPP_NUMBER, buildContactWhatsappHref } from "@/lib/whatsapp-number";
-import { JOBS_CONDUCTED_TEXT, GUARANTEE_TEXT } from "@/lib/recruitment-content";
+import {
+  CREDENTIALS_LINE,
+  JOBS_CONDUCTED_TEXT,
+  METHODOLOGY_TITLE,
+  METHODOLOGY_STEPS,
+  GUARANTEE_TEXT,
+  RECRUITMENT_FAQ_ITEMS,
+  RECRUITMENT_FAQ_JSON_LD,
+} from "@/lib/recruitment-content";
 import { getSiteUrl } from "@/lib/site-url";
 
 /** Único tipo geo que, por enquanto, leva o conteúdo e o formulário de lead
@@ -53,6 +63,13 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
   const primaryHref = isContatoCta
     ? buildContactWhatsappHref(`${pageType.label} em ${city.name}, ${uf}`)
     : pageType.ctaHref;
+
+  // Único tipo com formulário de lead próprio na página — o hero muda só
+  // pra ele: o CTA principal passa a rolar até o formulário em vez de ir
+  // direto pro WhatsApp, e o secundário de WhatsApp (que os outros tipos
+  // B2B escondem pra não duplicar o CTA único) volta a aparecer, já que
+  // agora é uma alternativa ao formulário, não um botão redundante.
+  const isRecruitmentType = pageType.slug === RECRUITMENT_TYPE_SLUG;
 
   const relatedCities = otherCities
     .filter((c) => !(c.uf === city.uf && c.slug === city.slug))
@@ -100,52 +117,102 @@ export function GeoPageTemplate({ city, pageType, otherCities }: GeoPageTemplate
       {/* eslint-disable-next-line react/no-danger */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <PageHero eyebrow={pageType.eyebrow} title={h1} subtitle={pageType.buildIntro(city)}>
-        <Button asChild size="lg">
-          {isContatoCta ? (
-            <WhatsappClickLink href={primaryHref} target="_blank" rel="noopener noreferrer" button="hero_primary">
-              <MessageCircle className="h-4 w-4" />
-              {pageType.ctaLabel}
-            </WhatsappClickLink>
-          ) : (
-            <Link href={primaryHref}>{pageType.ctaLabel}</Link>
-          )}
-        </Button>
-        {!isContatoCta && (
-          <Button asChild size="lg" variant="secondary">
-            <WhatsappClickLink href={whatsappHref} target="_blank" rel="noopener noreferrer" button="hero_secondary">
-              <MessageCircle className="h-4 w-4" />
-              Falar no WhatsApp
-            </WhatsappClickLink>
-          </Button>
+      <PageHero
+        eyebrow={pageType.eyebrow}
+        title={h1}
+        subtitle={pageType.buildIntro(city)}
+        afterSubtitle={
+          isRecruitmentType ? (
+            <p className="mt-3 text-body-sm font-medium text-fg-muted">{CREDENTIALS_LINE}</p>
+          ) : undefined
+        }
+      >
+        {isRecruitmentType ? (
+          <>
+            <Button asChild size="lg">
+              <a href="#formulario-contato">Quero contratar</a>
+            </Button>
+            <Button asChild size="lg" variant="secondary">
+              <WhatsappClickLink href={whatsappHref} target="_blank" rel="noopener noreferrer" button="hero_secondary">
+                <MessageCircle className="h-4 w-4" />
+                Falar no WhatsApp
+              </WhatsappClickLink>
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button asChild size="lg">
+              {isContatoCta ? (
+                <WhatsappClickLink href={primaryHref} target="_blank" rel="noopener noreferrer" button="hero_primary">
+                  <MessageCircle className="h-4 w-4" />
+                  {pageType.ctaLabel}
+                </WhatsappClickLink>
+              ) : (
+                <Link href={primaryHref}>{pageType.ctaLabel}</Link>
+              )}
+            </Button>
+            {!isContatoCta && (
+              <Button asChild size="lg" variant="secondary">
+                <WhatsappClickLink href={whatsappHref} target="_blank" rel="noopener noreferrer" button="hero_secondary">
+                  <MessageCircle className="h-4 w-4" />
+                  Falar no WhatsApp
+                </WhatsappClickLink>
+              </Button>
+            )}
+          </>
         )}
       </PageHero>
 
-      <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
-        <h2 className="font-display text-display-md font-semibold text-fg">
-          Como funciona em {city.name}
-        </h2>
-        <ul className="mt-6 flex flex-col gap-4">
-          {pageType.buildBenefits(city).map((benefit) => (
-            <li key={benefit} className="flex items-start gap-3 text-body-lg text-fg-muted">
-              <Check className="mt-1 h-4 w-4 shrink-0 text-accent-600 dark:text-accent-400" />
-              {benefit}
-            </li>
-          ))}
-        </ul>
-      </section>
+      {!isRecruitmentType && (
+        <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
+          <h2 className="font-display text-display-md font-semibold text-fg">
+            Como funciona em {city.name}
+          </h2>
+          <ul className="mt-6 flex flex-col gap-4">
+            {pageType.buildBenefits(city).map((benefit) => (
+              <li key={benefit} className="flex items-start gap-3 text-body-lg text-fg-muted">
+                <Check className="mt-1 h-4 w-4 shrink-0 text-accent-600 dark:text-accent-400" />
+                {benefit}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
-      {pageType.slug === RECRUITMENT_TYPE_SLUG && (
+      {isRecruitmentType && (
         <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(RECRUITMENT_FAQ_JSON_LD) }}
+          />
+
           <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
             <h2 className="font-display text-display-md font-semibold text-fg">Vagas que já conduzimos</h2>
             <p className="mt-6 text-body-lg text-fg-muted">{JOBS_CONDUCTED_TEXT}</p>
           </section>
 
           <section className="border-y border-border bg-bg-surface px-5 py-16 lg:px-8">
+            <div className="mx-auto max-w-5xl">
+              <h2 className="text-center font-display text-display-md font-semibold text-fg">{METHODOLOGY_TITLE}</h2>
+              <div className="mt-12 overflow-x-auto pb-2">
+                <div className="min-w-[40rem]">
+                  <FoldStepIndicator steps={METHODOLOGY_STEPS} currentStep={METHODOLOGY_STEPS.length} />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="mx-auto max-w-3xl px-5 py-16 lg:px-8">
+            <h2 className="font-display text-display-md font-semibold text-fg">Garantia de reposição</h2>
+            <p className="mt-6 text-body-lg text-fg-muted">{GUARANTEE_TEXT}</p>
+          </section>
+
+          <section className="border-y border-border bg-bg-surface px-5 py-16 lg:px-8">
             <div className="mx-auto max-w-3xl">
-              <h2 className="font-display text-display-md font-semibold text-fg">Garantia de reposição</h2>
-              <p className="mt-6 text-body-lg text-fg-muted">{GUARANTEE_TEXT}</p>
+              <h2 className="text-center font-display text-display-md font-semibold text-fg">Perguntas frequentes</h2>
+              <div className="mt-10">
+                <Faq items={RECRUITMENT_FAQ_ITEMS} />
+              </div>
             </div>
           </section>
 
