@@ -112,7 +112,19 @@ export function CandidateDetailModal({ application, onClose, onStatusChange }: C
         {application.scoreReasoning && (
           <div className="mt-6">
             <h3 className="font-display text-heading-sm font-semibold text-fg">Análise de aderência</h3>
-            <p className="mt-2 text-body-md leading-relaxed text-fg">{application.scoreReasoning}</p>
+            <div className="mt-2 flex flex-col gap-1.5">
+              {application.scoreReasoning.split("\n").map((line, index) =>
+                line.startsWith("⚠") ? (
+                  <p key={index} className="text-body-md font-medium leading-relaxed text-error">
+                    {line}
+                  </p>
+                ) : (
+                  <p key={index} className="text-body-md leading-relaxed text-fg">
+                    {line}
+                  </p>
+                )
+              )}
+            </div>
           </div>
         )}
 

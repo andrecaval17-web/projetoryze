@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { updateApplicationStatus, type ApplicationStatus } from "../actions";
+import { updateApplicationStatus, reevaluateJobApplications, type ApplicationStatus } from "../actions";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { CandidateDetailModal } from "./candidate-detail-modal";
@@ -55,6 +55,8 @@ export function KanbanBoard({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkTarget, setBulkTarget] = useState<ApplicationStatus>(STAGES[0].key);
   const [, startTransition] = useTransition();
+  const [isReevaluating, startReevaluateTransition] = useTransition();
+  const [reevaluateMessage, setReevaluateMessage] = useState<string | null>(null);
 
   function handleStatusChange(applicationId: string, next: ApplicationStatus) {
     setApplications((prev) =>
@@ -85,6 +87,26 @@ export function KanbanBoard({
     });
   }
 
+  function handleReevaluate() {
+    const confirmed = window.confirm(
+      "Reavaliar as candidaturas desta vaga com a nova régua de score (permanência + aderência de área)? Até 50 candidaturas ainda não reavaliadas serão reprocessadas agora."
+    );
+    if (!confirmed) return;
+    setReevaluateMessage(null);
+    startReevaluateTransition(async () => {
+      const result = await reevaluateJobApplications(jobId);
+      if (result.status === "success" && (result.processedCount ?? 0) > 0) {
+        // As notas/alertas mudaram no servidor — estado local do kanban foi
+        // inicializado com os dados antigos e um `revalidatePath` sozinho não
+        // atualiza as props de um componente client já montado. Recarregar é
+        // o jeito simples de garantir que o admin veja os números novos.
+        window.location.reload();
+        return;
+      }
+      setReevaluateMessage(result.message);
+    });
+  }
+
   const columns = useMemo(
     () => STAGES.map((stage) => ({ ...stage, items: applications.filter((a) => a.pipelineStatus === stage.key) })),
     [applications]
@@ -94,6 +116,13 @@ export function KanbanBoard({
 
   return (
     <div>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <Button type="button" size="sm" variant="secondary" onClick={handleReevaluate} loading={isReevaluating}>
+          Reavaliar candidaturas com a nova régua
+        </Button>
+        {reevaluateMessage && <span className="text-body-sm text-fg-muted">{reevaluateMessage}</span>}
+      </div>
+
       {selectedIds.size > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-accent-500/40 bg-accent-500/10 px-4 py-3">
           <span className="text-body-sm font-medium text-fg">
