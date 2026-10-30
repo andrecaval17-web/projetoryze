@@ -46,6 +46,18 @@ export const AI_MODELS = {
   resumeExtraction: "gpt-5.4-mini",
   resumeImprove: "gpt-5.4-mini",
   interview: "gpt-5.4-mini",
+  /**
+   * Régua de aderência do ATS (src/lib/ats/scoring.ts + submitApplication) —
+   * tarefa própria, não reaproveita `linkedinAnalysis`. O ideal seria o tier
+   * cheio (`gpt-5.4`, sem "-mini"): julgar permanência/aderência de carreira
+   * pra decidir quem avança pesa mais caro errar do que reescrever um
+   * currículo. Mas este ambiente de dev não teve acesso de rede à API da
+   * OpenAI pra confirmar via `GET /v1/models` + chamada real se `gpt-5.4`
+   * (cheio) está disponível nesta chave, do jeito que o comentário acima
+   * documenta pra `gpt-5.4-mini` — por isso fica em `gpt-5.4-mini` até
+   * alguém com acesso à chave confirmar o cheio e trocar aqui.
+   */
+  atsScoring: "gpt-5.4-mini",
   /** Voz das perguntas da Simulação de Entrevista (texto → áudio) — tier
    * "mini" também aqui, mesmo raciocínio de custo dos modelos de texto acima. */
   interviewVoice: "gpt-4o-mini-tts",

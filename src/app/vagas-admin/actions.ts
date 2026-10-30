@@ -4,6 +4,16 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin/auth";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { maybeSendRejectionEmail } from "@/lib/ats/rejection-email";
+import { getAiClient, AI_MODELS } from "@/lib/ai/client";
+import { logAiUsage } from "@/lib/ai/usage";
+import { extractPdfText } from "@/lib/pdf";
+import {
+  AI_FAILURE_REASONING,
+  computeFinalScore,
+  parseModelScoreJson,
+  type FinalScoreResult,
+} from "@/lib/ats/scoring";
+import { buildAtsScoringPrompt } from "@/lib/ats/prompt";
 
 const JOB_STATUSES = ["aberta", "pausada", "encerrada"] as const;
 export type JobStatus = (typeof JOB_STATUSES)[number];
@@ -484,4 +494,159 @@ export async function updateApplicationStatus(
   }
 
   revalidatePath(`/vagas-admin/${jobId}`);
+}
+
+// --- Reavaliação com a nova régua --------------------------------------
+
+/** Marca gravada no fim de `score_reasoning` por este fluxo — usada só pra saber quais candidaturas ainda não passaram pela régua nova, nunca exibida como instrução. */
+const REEVALUATED_MARKER = "Nota anterior:";
+const REEVALUATE_BATCH_LIMIT = 50;
+
+export interface ReevaluateApplicationsResult {
+  status: "success" | "error";
+  message: string;
+  processedCount?: number;
+  remainingCount?: number;
+}
+
+/**
+ * Reprocessa as candidaturas de uma vaga com a régua de score atual
+ * (permanência + aderência de área), uma por vez: baixa o PDF do storage,
+ * extrai o texto, roda a mesma avaliação da candidatura pública e grava a
+ * nova nota preservando a anterior em `score_reasoning` ("Nota anterior: X").
+ *
+ * Processa no máximo `REEVALUATE_BATCH_LIMIT` candidaturas AINDA NÃO
+ * reavaliadas por clique (identificadas pela ausência do marcador
+ * `REEVALUATED_MARKER`) — uma vaga com centenas de candidaturas exigiria
+ * vários cliques, e o aviso de quantas restam deixa isso claro pro admin.
+ */
+export async function reevaluateJobApplications(jobId: string): Promise<ReevaluateApplicationsResult> {
+  await requireAdmin();
+
+  const supabase = getSupabaseAdminClient();
+
+  const { data: job, error: jobError } = await supabase
+    .from("ats_job_postings")
+    .select("id, title, description, requirements")
+    .eq("id", jobId)
+    .maybeSingle();
+
+  if (jobError || !job) {
+    return { status: "error", message: "Vaga não encontrada." };
+  }
+
+  // Perguntas de TODA a vaga (inclusive arquivadas) — só pro texto que entra
+  // no prompt, igual à candidatura pública.
+  const { data: questions } = await supabase
+    .from("ats_job_questions")
+    .select("id, question")
+    .eq("job_posting_id", jobId);
+  const questionTextById = new Map((questions ?? []).map((q) => [q.id, q.question]));
+
+  const { data: allApplications, error: applicationsError } = await supabase
+    .from("ats_applications")
+    .select("id, resume_storage_path, score, score_reasoning, created_at")
+    .eq("job_posting_id", jobId)
+    .order("created_at", { ascending: true });
+
+  if (applicationsError || !allApplications) {
+    return { status: "error", message: "Não foi possível carregar as candidaturas." };
+  }
+  if (allApplications.length === 0) {
+    return { status: "error", message: "Nenhuma candidatura para reavaliar." };
+  }
+
+  const pending = allApplications.filter((a) => !(a.score_reasoning ?? "").includes(REEVALUATED_MARKER));
+  if (pending.length === 0) {
+    return {
+      status: "success",
+      processedCount: 0,
+      remainingCount: 0,
+      message: "Todas as candidaturas já foram reavaliadas com a nova régua.",
+    };
+  }
+
+  const batch = pending.slice(0, REEVALUATE_BATCH_LIMIT);
+  const remainingCount = pending.length - batch.length;
+
+  const batchIds = batch.map((a) => a.id);
+  const { data: answerRows } = await supabase
+    .from("ats_application_answers")
+    .select("application_id, question_id, answer")
+    .in("application_id", batchIds);
+  const answersByApplication = new Map<string, { question: string; answer: string }[]>();
+  for (const row of answerRows ?? []) {
+    const list = answersByApplication.get(row.application_id) ?? [];
+    list.push({ question: questionTextById.get(row.question_id) ?? "", answer: row.answer });
+    answersByApplication.set(row.application_id, list);
+  }
+
+  let processedCount = 0;
+
+  for (const app of batch) {
+    let newScore: FinalScoreResult = { score: app.score ?? 0, scoreReasoning: AI_FAILURE_REASONING };
+    try {
+      const { data: downloaded, error: downloadError } = await supabase.storage
+        .from("ats-resumes")
+        .download(app.resume_storage_path);
+      if (downloadError || !downloaded) throw downloadError ?? new Error("Download do currículo retornou vazio");
+
+      const arrayBuffer = await downloaded.arrayBuffer();
+      const extractedText = await extractPdfText(new Uint8Array(arrayBuffer));
+      if (!extractedText) throw new Error("PDF sem texto extraível");
+
+      const openai = getAiClient();
+      const { system, user } = buildAtsScoringPrompt({
+        jobTitle: job.title,
+        jobDescription: job.description,
+        jobRequirements: job.requirements,
+        answers: answersByApplication.get(app.id) ?? [],
+        resumeText: extractedText,
+      });
+      const completion = await openai.chat.completions.create({
+        model: AI_MODELS.atsScoring,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+      });
+
+      const content = completion.choices[0]?.message?.content ?? "";
+      if (!content) throw new Error("OpenAI returned an empty completion");
+      newScore = computeFinalScore(parseModelScoreJson(content));
+
+      await logAiUsage(null, "ats", AI_MODELS.atsScoring, completion.usage);
+    } catch (err) {
+      // Nunca logar o texto do currículo nem a resposta da IA — só o erro.
+      console.error("[admin] falha ao reavaliar candidatura", app.id, err);
+    }
+
+    const finalReasoning = [newScore.scoreReasoning, `${REEVALUATED_MARKER} ${app.score ?? 0}.`]
+      .filter(Boolean)
+      .join("\n");
+
+    const { error: updateError } = await supabase
+      .from("ats_applications")
+      .update({ score: newScore.score, score_reasoning: finalReasoning, updated_at: new Date().toISOString() })
+      .eq("id", app.id);
+
+    if (updateError) {
+      console.error("[admin] falha ao salvar nova nota da candidatura", app.id, updateError);
+      continue;
+    }
+    processedCount += 1;
+  }
+
+  revalidatePath(`/vagas-admin/${jobId}/pipeline`);
+
+  return {
+    status: "success",
+    processedCount,
+    remainingCount,
+    message:
+      remainingCount > 0
+        ? `${processedCount} candidatura${processedCount === 1 ? "" : "s"} reavaliada${processedCount === 1 ? "" : "s"}. Ainda restam ${remainingCount} — clique novamente para continuar.`
+        : `${processedCount} candidatura${processedCount === 1 ? "" : "s"} reavaliada${processedCount === 1 ? "" : "s"}.`,
+  };
 }
